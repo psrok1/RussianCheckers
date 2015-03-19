@@ -1,0 +1,56 @@
+Transmisja będzie odbywała się poprzez obiekty JSON przesyłane za pośrednictwem protokołu WebSocket
+Struktura komunikatu - {message: <string>, ...} 
+Przebieg gry:
+
+ROZPOCZĘCIE
+	1. 	Klient łączy się z serwerem
+	2. 	Następnie wita się i wysyła informacje o ustawieniach gry (żądany poziom trudności, białe/czarne/obojętnie itd.)
+	client> {message: "hello", level: "medium", pieces: "auto"}
+	3. 	Serwer inicjalizuje grę po swojej stronie.
+	4. 	Następnie również wita się z nami podając jakiego typu pionki mamy
+	server> {message: "hello", pieces: "white"}
+	5. 	Klient tworzy grę po swojej stronie. Inicjalizuje model, przestawia widok na planszę gry
+	6. 	Klient wysyła sygnał, że jest gotowy do gry (nie oczekując potwierdzenia)
+	client> {message: "ready"}
+ROZGRYWKA (Uznajemy, że klient posiada białe pionki)
+	1. 	Kontroler zleca widokowi, by włączył interaktywność (włączył zdarzenia)
+	2. 	Gdy zostanie kliknięty pionek, kontroler żąda od modelu listy możliwych ruchów.
+		Jeśli takich nie ma, odrzuca i nic się nie dzieje.
+	   	Jeśli takie istnieją: zleca widokowi aktywację i pokolorowanie odpowiednich pól
+	3. 	Gdy po wybraniu pionka zostanie kliknięte pokolorowane pole: pionek wykonuje ruch tzn.
+	3a. Kontroler wyłącza chwilowo interaktywność widoku
+	3b. Kontroler dopisuje go do kolejki "niezrealizowanych ruchów klienta" i realizuje go w modelu po stronie klienta
+	3c. Kontroler zleca widokowi wykonanie graficznego przejścia pionka, a potem przerysowania planszy (bicie usuwa pionek)
+		Widokowi wysyłany jest w tym celu ruch do realizacji i czynność po jego zakończeniu
+		Może również zostać przekazana lista ruchów [przydatne przy ruchach serwera]
+	3d. Następnie w międzyczasie pyta model czy jest to ostatnie możliwe bicie (bądź pojedyńczy ruch)
+    	Tak? Wyślij "niezrealizowane ruchy klienta" na serwer [np. B1 -> D3 -> B5].
+    client> {message: "move", moves: ["B1", "D3", "B5"]}
+		Serwer realizuje po swojej stronie otrzymane ruchy i wysyła potwierdzenie, wraz z własnym ruchem 
+		(o ile seria nie prowadziła do zwycięstwa)
+		Klient wstawia sobie "niezrealizowane ruchy serwera" do bufora.
+	server> {message: "move", moves: ["A8", "B7"]}
+		Jeśli wykryje niedozwolony ruch, jest to wewnętrzny błąd gry i gra powinna zostać natychmiastowo zatrzymana
+	server> {message: "error", code: "bad_move"}
+	3e. Gdy widok przestał już się bawić w przesuwanie
+		Jeśli jest dalej nasz ruch: wracamy do 1. w trybie kontynuacji bicia 
+		[model odrzuca możliwość zmiany pionka, pokazuje tylko możliwe bicia]
+		Jeśli ruch klienta był finalny: przejdź do KONIEC
+		Jeśli jest ruch przeciwnika: 
+			- przełączamy widok na "myślenie"
+			- teraz symulujemy "myślenie" serwera. Po prostu co 2-3 sekundy (wstępnie czekając) sprawdzamy 
+			  czy już pojawił się ruch serwera w buforze.
+			  Oczywiście nie ma prawie szans, by serwer tak zmulił, ale przezorny zawsze ubezpieczony.
+			  Jeśli dalej tam nie ma jakimś cudem tego ruchu to odpalamy kolejne oczekiwanie.
+			  Jeśli jest:
+			- realizujemy ruch w modelu i usuwamy "niezrealizowane ruchy serwera"
+			- następnie realizujemy ruch w widoku (3c)
+	4. Gdy widok przestał już się bawić w przesuwanie po ruchu serwera:
+		Jeśli ruch serwera był finalny - przejdź do KONIEC
+		Jeśli nie: przejdź do 1.
+KONIEC GRY
+	Jeśli ruch serwera lub klienta był finalny, zakładamy, że obie strony o tym doskonale wiedzą. 
+	Przerywamy komunikację z serwerem gry.
+	Nasz klient nie musi umieć wygrywać i kulturalnie żegnać się z serwerem, po prostu zamyka połączenie.
+	Serwer zaś milknie zawstydzony porażką.
+	Widok wyświetla komunikat o zwycięstwie lub porażce
