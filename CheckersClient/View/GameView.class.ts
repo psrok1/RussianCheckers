@@ -1,4 +1,8 @@
 ﻿module View {
+    export interface ModelObserver<T> {
+        notify(sender: T);
+    }
+
     export class GameView extends View {
         // ...
         
