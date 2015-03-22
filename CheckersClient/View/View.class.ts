@@ -1,8 +1,11 @@
 ﻿module View {
     export /*abstract*/ class View {
         private paused: boolean;
+        protected stage: PIXI.Stage;
 
-        constructor() { }
+        constructor() {
+            this.stage = new PIXI.Stage(0);
+        }
         public update() { }
         public pause(): boolean {
             if (!this.paused) {
@@ -22,6 +25,10 @@
 
         public isPaused(): boolean {
             return this.paused;
+        }
+
+        public getStage(): PIXI.Stage {
+            return this.stage;
         }
     }
 } 

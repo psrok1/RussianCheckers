@@ -20,6 +20,8 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="index.html" />
+    <Content Include="Pixi\pixi.dev.js" />
+    <Content Include="Pixi\pixi.js" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -29,6 +31,7 @@
     <TypeScriptCompile Include="Model\Field.class.ts" />
     <TypeScriptCompile Include="Model\GameModel.class.ts" />
     <TypeScriptCompile Include="Model\Piece.class.ts" />
+    <TypeScriptCompile Include="Pixi\pixi.d.ts" />
     <TypeScriptCompile Include="View\GameView.class.ts" />
     <TypeScriptCompile Include="View\LoaderView.class.ts" />
     <TypeScriptCompile Include="View\MenuView.class.ts" />
@@ -37,6 +40,7 @@
     <TypeScriptCompile Include="_references.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Pixi\pixi.dev.js.map" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
