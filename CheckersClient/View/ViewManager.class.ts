@@ -20,7 +20,7 @@
         }
 
         public update() {
-            requestAnimationFrame(function () { this.render() }.bind(ViewManager.getInstance()));
+            requestAnimationFrame(function () { this.update() }.bind(ViewManager.getInstance()));
 
             if (!this.currentView || this.currentView.isPaused())
                 return;

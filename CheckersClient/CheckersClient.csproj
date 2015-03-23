@@ -35,6 +35,8 @@
     <TypeScriptCompile Include="View\GameView.class.ts" />
     <TypeScriptCompile Include="View\LoaderView.class.ts" />
     <TypeScriptCompile Include="View\MenuView.class.ts" />
+    <TypeScriptCompile Include="View\Game\Piece.class.ts" />
+    <TypeScriptCompile Include="View\Transition.class.ts" />
     <TypeScriptCompile Include="View\View.class.ts" />
     <TypeScriptCompile Include="View\ViewManager.class.ts" />
     <TypeScriptCompile Include="_references.ts" />
@@ -49,6 +51,9 @@
     </None>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>
