@@ -33,6 +33,8 @@
     <TypeScriptCompile Include="Model\Piece.class.ts" />
     <TypeScriptCompile Include="Pixi\pixi.d.ts" />
     <TypeScriptCompile Include="View\GameView.class.ts" />
+    <TypeScriptCompile Include="View\Game\Board.class.ts" />
+    <TypeScriptCompile Include="View\Game\Field.class.ts" />
     <TypeScriptCompile Include="View\LoaderView.class.ts" />
     <TypeScriptCompile Include="View\MenuView.class.ts" />
     <TypeScriptCompile Include="View\Game\Piece.class.ts" />
