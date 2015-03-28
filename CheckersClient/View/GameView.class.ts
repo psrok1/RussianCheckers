@@ -12,7 +12,24 @@
         
         constructor() {
             super();
-            // ...
+            // Test GameView & Transition -----
+            for (var i = 0; i < 20; i++) {
+                var circle = new PIXI.Graphics();
+                circle.beginFill(0x808080 + (Math.random() * 0x7F7F7F));
+                circle.drawCircle(0, 0, 32);
+                circle.endFill();
+                circle.position.set(384, 284);
+                this.stage.addChild(circle);
+
+                this.addTransition(new MovementTransition(
+                    this,
+                    circle,
+                    new PIXI.Point(
+                        Math.random() * 700 + 32,
+                        Math.random() * 500 + 32
+                        ), 10));
+                this.addTransition(new RemoveTransition(this, circle));
+            }
         }
 
         public update() {
@@ -32,6 +49,8 @@
             if (!super.resume())
                 return false;
             // ...
+            // Test GameView & Transition
+            this.playTransition();
             return true;
         }
 

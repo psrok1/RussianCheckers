@@ -1,6 +1,6 @@
 ﻿module View {
     export /*abstract*/ class View {
-        private paused: boolean;
+        private paused: boolean = true;
         protected stage: PIXI.Stage;
 
         constructor() {
