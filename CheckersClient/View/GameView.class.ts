@@ -7,6 +7,7 @@
         private transitionQueue: Transition[] = [];
         private onTransitionEndHandler: () => void = null;
         private currentTransition: Transition = null;
+        private transitionPlayed: boolean = false;
         // ...
         
         constructor() {
@@ -38,9 +39,10 @@
             this.transitionQueue.push(transition);
         }
 
-        public playTransition() {
+        public nextTransition() {
             if (this.transitionQueue.length === 0) {
                 this.currentTransition = null;
+                this.transitionPlayed = false;
                 if (this.onTransitionEndHandler) {
                     this.onTransitionEndHandler();
                     this.onTransitionEndHandler = null;
@@ -49,6 +51,13 @@
             else {
                 this.currentTransition = this.transitionQueue.shift();
                 this.currentTransition.play();
+            }
+        }
+
+        public playTransition() {
+            if (!this.transitionPlayed) {
+                this.transitionPlayed = true;
+                this.nextTransition();
             }
         }
 

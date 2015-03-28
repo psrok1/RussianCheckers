@@ -11,7 +11,7 @@
              */
         }
 
-        public initialize(localColor: Model.PieceColor) {
+        public initialize(boardModel: Model.Board) {
             /*
              * Ustawia pionki na startowych pozycjach
              * Obraca planszę do neutralnej pozycji

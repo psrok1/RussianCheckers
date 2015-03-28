@@ -68,7 +68,7 @@
                     this.d += this.bi;
                 }
                 if (this.endCondition()) {
-                    this.view.playTransition();
+                    this.view.nextTransition();
                     break;
                 }
             }
@@ -88,7 +88,7 @@
 
         public play() {
             this.method();
-            this.view.playTransition();
+            this.view.nextTransition();
         }
     }
 

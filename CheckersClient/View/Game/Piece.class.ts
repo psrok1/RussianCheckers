@@ -8,7 +8,7 @@
         private isKing: boolean;
         private captured: boolean;
 
-        constructor(view: GameView, piece: Model.Piece) {
+        constructor(view: GameView) {
 
         }
 
@@ -16,12 +16,24 @@
             
         }
 
-        public initialize(position: Model.Field) {
-
+        public initialize(piece: Model.Piece) {
+            /*
+             * Ustaw teksture i pozycje pionka zgodnie z modelem
+             * Dodaj sie do listy obserwatorow danego pionka
+             */
         }
 
         public onClick(handler: (piece: Piece) => void) {
 
+        }
+
+        public getPieceModel(): Model.Piece {
+            /*
+             * Pobiera model na podstawie pozycji
+             * Moglibysmy trzymac odnosnik do tego obiektu,
+             * ale mozliwosc zmiany na damke komplikuje sprawe
+             */
+            return null;
         }
     }
 } 
