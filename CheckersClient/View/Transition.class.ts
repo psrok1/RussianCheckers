@@ -1,5 +1,11 @@
 ﻿module View {
     /*
+     * Niektóre akcje widoku muszą zostać wykonane synchronicznie np. przejście pionka, bicie
+     * i zmiana na damkę. Ten mechanizm pozwala na wykonanie synchronicznie kilku akcji w
+     * asynchronicznym środowisku JavaScript. 
+     */
+    
+    /*
      * Abstrakcyjna klasa reprezentujaca akcje widoku, ktore zostaną wykonane sekwencyjnie
      */
     export /*abstract*/ class Transition {
@@ -9,12 +15,13 @@
             this.view = view;
         }
 
-        public update() { }
-        public play() { }
+        public update() { }     // Aktualizacja stanu akcji
+        public play() { }       // Wyzwolenie akcji
     }
     
     /*
      * Akcja przemieszczenia obiektu widoku do danego punktu
+     * z wykorzystaniem algorytmu Bresenhama
      */
     export class MovementTransition extends Transition {
         private object: PIXI.DisplayObject;
@@ -29,6 +36,13 @@
         private ai: number;
         private bi: number;
 
+        /*
+         * Konstruktor obiektu akcji.
+         * view   - Widok, do którego należy obiekt
+         * object - Obiekt, który ma zostać przemieszczony
+         * target - Punkt docelowy
+         * speed  - Szybkość przemieszczenia
+         */
         constructor(view: GameView, object: PIXI.DisplayObject, target: PIXI.Point, speed: number) {
             super(view);
             this.object = object;
@@ -47,6 +61,9 @@
             this.d = this.bi - Math.max(this.dx, this.dy);
         }
 
+        /*
+         * Sprawdzenie czy spełniony jest warunek zakończenia przejścia
+         */
         private endCondition(): boolean {
             if (this.dx > this.dy)
                 return Math.floor(this.object.position.x) == Math.floor(this.target.x);
@@ -54,6 +71,9 @@
                 return Math.floor(this.object.position.y) == Math.floor(this.target.y);
         }
 
+        /*
+         * Aktualizacja stanu przejścia
+         */
         public update() {
             for (var i = 0; i < this.speed; i++) {
                 if (this.d >= 0) {

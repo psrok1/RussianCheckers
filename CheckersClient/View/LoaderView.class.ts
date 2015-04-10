@@ -1,4 +1,7 @@
 ﻿module View {
+    /*
+     * Klasa reprezentująca widok ładowania gry
+     */
     export class LoaderView extends View {
         // ...
         

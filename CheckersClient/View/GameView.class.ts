@@ -1,13 +1,22 @@
 ﻿module View {
+    /*
+     * Generyczny interfejs obserwatora modelu
+     */
     export interface ModelObserver<T> {
         notify(sender: T);
     }
 
+    /*
+     * Klasa reprezentująca widok gry
+     */
     export class GameView extends View {
-        private transitionQueue: Transition[] = [];
-        private onTransitionEndHandler: () => void = null;
-        private currentTransition: Transition = null;
-        private transitionPlayed: boolean = false;
+        /*
+         * Stan przejść synchronicznych
+         */
+        private transitionQueue: Transition[] = [];         // kolejka przejść synchronicznych
+        private onTransitionEndHandler: () => void = null;  // handler zdarzenia zakończenia przejść
+        private currentTransition: Transition = null;       // aktualnie wykonywane przejście
+        private transitionPlayed: boolean = false;          // czy przejścia są aktualnie wykonywane?
         // ...
         
         constructor() {
@@ -54,10 +63,16 @@
             return true;
         }
 
+        /*
+         * Rejestracja przejścia synchronicznego
+         */
         public addTransition(transition: Transition) {
             this.transitionQueue.push(transition);
         }
 
+        /*
+         * Wykonanie następnego w kolejce przejścia
+         */
         public nextTransition() {
             if (this.transitionQueue.length === 0) {
                 this.currentTransition = null;
@@ -73,6 +88,9 @@
             }
         }
 
+        /*
+         * Uruchomienie kolejki przejść
+         */
         public playTransition() {
             if (!this.transitionPlayed) {
                 this.transitionPlayed = true;
@@ -80,6 +98,9 @@
             }
         }
 
+        /*
+         * Rejestracja handlera, który wykona się, gdy kolejka przejść stanie się pusta
+         */
         public onTransitionEnd(handler: () => void) {
             this.onTransitionEndHandler = handler;
         }

@@ -1,10 +1,16 @@
 ﻿module View {
+    /*
+     * Singleton reprezentujący menedżer widoków aplikacji
+     */
     export class ViewManager {
-        private static instance: ViewManager = null;
-        private views: { [name: string]: View } = {};
-        private currentView: View = null;
-        private renderer: Renderer;
+        private static instance: ViewManager = null;    // instancja obiektu singletona
+        private views: { [name: string]: View } = {};   // kontener widoków
+        private currentView: View = null;               // aktualnie wyświetlany widok
+        private renderer: Renderer;                     // obiekt silnika renderującego
     
+        /*
+         * Konstruktor 
+         */
         constructor() {
             if (ViewManager.instance)
                 throw new Error("ViewManager is a singleton. Instantiation failed.");
@@ -13,12 +19,18 @@
             ViewManager.instance = this;
         }
 
+        /*
+         * Pobranie odnośnika do obiektu menedżera
+         */
         public static getInstance(): ViewManager {
             if (!ViewManager.instance)
                 ViewManager.instance = new ViewManager();
             return ViewManager.instance;
         }
 
+        /*
+         * Callback aktualizujący widok i rysujący kolejną klatkę
+         */
         public update() {
             requestAnimationFrame(function () { this.update() }.bind(ViewManager.getInstance()));
 
@@ -28,6 +40,9 @@
             this.renderer.render(this.currentView.getStage());
         }
 
+        /*
+         * Rejestracja widoku
+         */
         public registerView(name: string, view: View): View {
             if (this.views[name])
                 return this.views[name];
@@ -35,6 +50,9 @@
             return view;
         }
 
+        /*
+         * Zmiana aktualnie wyświetlanego widoku
+         */
         public switchView(name: string): View {
             if (this.views[name]) {
                 if (this.currentView)
@@ -46,6 +64,9 @@
                 return undefined;
         }
 
+        /*
+         * Pobranie obiektu widoku o danej nazwie
+         */
         public getView(name: string): View {
             if (this.views[name])
                 return this.views[name];
@@ -54,15 +75,23 @@
         }
     }
 
+    /*
+     * Klasa opakowująca silnik renderujący
+     * Inicjalizuje silnik i obsługuje zdarzenie resize okna, aby
+     * skalować kanwę w zależności od rozmiaru okna przeglądarki.
+     */
     class Renderer {
-        private renderer: PIXI.PixiRenderer;
+        private renderer: PIXI.PixiRenderer;    // Obiekt silnika renderującego dostarczanego przez PIXI
 
-        private ratio: number = 1;
-        private defaultWidth: number = 800;
-        private defaultHeight: number = 600;
-        private width: number;
-        private height: number;
+        private ratio: number = 1;              // Aktualna skala kanwy
+        private defaultWidth: number = 800;     // Pierwotna szerokość
+        private defaultHeight: number = 600;    // Pierwotna wysokość
+        private width: number;                  // Przeskalowana szerokość
+        private height: number;                 // Przeskalowana wysokość
 
+        /*
+         * Konstruktor.
+         */
         constructor() {
             this.renderer = PIXI.autoDetectRenderer(this.defaultWidth, this.defaultHeight);
             this.width = this.defaultWidth;
@@ -74,6 +103,9 @@
             window.addEventListener("resize", this.rescale.bind(this), false);
         }
 
+        /*
+         * Handler zdarzenia resize
+         */
         private rescale() {
             this.ratio = Math.min(window.innerWidth / this.defaultWidth,
                 window.innerHeight / this.defaultHeight);
@@ -84,6 +116,9 @@
             this.renderer.view.style.top = window.innerHeight / 2 - this.height / 2 + "px";
         }
 
+        /*
+         * Skalowanie obiektów widoku
+         */
         private applyRatio(displayObject: PIXI.DisplayObjectContainer, ratio: number) {
             // --- DEBUG
             if (ratio == 1) return;
@@ -100,6 +135,9 @@
                 this.applyRatio(<PIXI.DisplayObjectContainer>displayObject.children[i], ratio);
         }
 
+        /*
+         * Rysowanie sceny uwzględniając zastosowaną skalę
+         */
         public render(stage: PIXI.Stage) {
             this.applyRatio(stage, this.ratio);
             this.renderer.render(stage);

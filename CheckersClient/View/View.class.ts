@@ -1,4 +1,7 @@
 ﻿module View {
+    /*
+     * Abstrakcyjna klasa stanowiąca bazę dla klas widoków
+     */
     export /*abstract*/ class View {
         private paused: boolean = true;
         protected stage: PIXI.Stage;

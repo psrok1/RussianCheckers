@@ -1,4 +1,7 @@
 ﻿module View {
+    /*
+     * Klasa reprezentująca widok menu gry
+     */
     export class MenuView extends View {
         // ...
         

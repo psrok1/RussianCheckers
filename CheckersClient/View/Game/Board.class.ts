@@ -1,4 +1,7 @@
 ﻿module View {
+    /*
+     * Klasa obiektu planszy widoku gry
+     */
     export class Board {
         private view:   GameView;
         private board:  PIXI.Sprite;

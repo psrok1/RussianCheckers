@@ -1,4 +1,8 @@
 ﻿module View {
+    /*
+     * Klasa widoku pionka na planszy widoku gry
+     * Obserwator pionka w modelu
+     */
     export class Piece implements ModelObserver<Model.Piece> {
         private view: GameView;
         private sprite: PIXI.Sprite;

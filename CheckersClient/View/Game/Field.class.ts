@@ -1,4 +1,7 @@
 ﻿module View {
+    /*
+     * Klasa obiektu pola na planszy widoku gry
+     */
     export class Field {
         private state: FieldState;
         private field: PIXI.Sprite;
