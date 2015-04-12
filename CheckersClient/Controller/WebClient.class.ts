@@ -36,9 +36,7 @@
          * Wewnętrzny handler zdarzenia nadejścia nowej wiadomości
          */
         private onMessage(msg: MessageEvent) {
-            /*
-             * TODO
-             */
+            
         }
 
         /*
@@ -68,6 +66,22 @@
         public close() {
             this.connectionClosed = true;
             this.socket.close();
+        }
+        
+        /*
+         * Metoda wysyłająca do serwera żądanie rozpoczęcia gry
+         * W razie ustawienia auto - desiredColor = null
+         */
+
+        public sayHello(desiredColor: Model.PieceColor) {
+
+        }
+
+        /*
+         * Metoda wysyłająca ruchy gracza do serwera
+         */
+        public sendMoves(from: Model.Field, moves: Model.Field[]) {
+
         }
 
         /***** Metody rejestracji handlerów zdarzeń, tj. opisano powyżej *****/

@@ -127,12 +127,10 @@
             displayObject.scale.x *= ratio;
             displayObject.scale.y *= ratio;
 
-            // PIXI.Graphics don't need recursive scaling for children
-            if (displayObject instanceof PIXI.Graphics)
-                return;
-
-            for (var i = 0; i < displayObject.children.length; ++i)
-                this.applyRatio(<PIXI.DisplayObjectContainer>displayObject.children[i], ratio);
+            // PIXI don't need recursive scaling
+            if (!displayObject.parent)
+                for (var i = 0; i < displayObject.children.length; ++i)
+                    this.applyRatio(<PIXI.DisplayObjectContainer>displayObject.children[i], ratio);
         }
 
         /*
