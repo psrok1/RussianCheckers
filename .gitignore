@@ -191,3 +191,7 @@ ModelManifest.xml
 # TypeScript generated files
 app.js
 app.js.map
+_references.js
+
+# TypeScript class generated files
+*.class.js
