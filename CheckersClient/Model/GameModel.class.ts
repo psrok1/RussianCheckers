@@ -7,17 +7,14 @@
         private gameTime: number;
         
         constructor(localPieces: PieceColor) {
-            /*
-             * TODO
-             * Tworzy plansze
-             * Inicjalizuje wszystkie obiekty
-             */
+            this.board = new Board();
+            this.localPieces = localPieces;
+            this.localTurn = ((localPieces === PieceColor.White) ? true : false);
+            this.gameTime = 0;
         }
 
         public switchTurn() {
-            /*
-             * TODO: Zmienia kolej
-             */
+            this.localTurn = !this.localTurn;
         }
 
         public isLocalTurn() {
@@ -25,9 +22,7 @@
         }
 
         public nextClockTick() {
-            /*
-             * TODO: Inkrementuje czas, gdy kolej gracza "lokalnego"
-             */
+            if (this.localTurn) ++this.gameTime;
         }
 
         public getClockTicks(): number {

@@ -34,6 +34,7 @@
     <TypeScriptCompile Include="Controller\WebClient.class.ts" />
     <TypeScriptCompile Include="Model\Board.class.ts" />
     <TypeScriptCompile Include="Model\Field.class.ts" />
+    <TypeScriptCompile Include="Model\King.class.ts" />
     <TypeScriptCompile Include="Model\GameModel.class.ts" />
     <TypeScriptCompile Include="Model\Piece.class.ts" />
     <TypeScriptCompile Include="Pixi\pixi.d.ts" />
