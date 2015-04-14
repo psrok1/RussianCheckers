@@ -1,7 +1,13 @@
+#include <iostream>
 #include <string>
 #include <algorithm>
 
-/* Klasa reprezentujaca pionek na planszy
+
+void initModule()
+{
+	std::cout << "Modul C++ boost::python zaimportowany" << std::endl;
+}
+ /*Klasa reprezentujaca pionek na planszy
  * zawiera w sobie informacje o kolorze pionka oraz czy jest on damka. 
  */
 class SimpleChecker
@@ -10,14 +16,27 @@ class SimpleChecker
 		char color;
 		bool king;
 	public:
+		SimpleChecker()
+		{
+			std::cout << "Konstruktor SimpleChecker" << std::endl;
+		}
 		//konstruktor z parametrami c - kolor b/w oraz k true/false
-		SimpleChecker(char c, bool k);
+		SimpleChecker(char c, bool k): color(c), king(k){}
 		//zmiana stanu z normalnego pionka na damke
-		void makeAKing();
+		void makeKing()
+		{
+			return;
+		}
 		//zwraca kolor pionka
-		char getColor();
+		char getColor()
+		{
+			return ' ';
+		}
 		//pokazuje czy pionek jest damka
-		bool isKing();
+		bool isKing()
+		{
+			return true;
+		}
 };
 
 /* Klasa przechowująca stan gry posiada kolekcje przechowujaca dane o polach planszy
@@ -38,24 +57,37 @@ class GameState
 		/* konstruktor tworzacy nowa plansze gry
 		 * Parametry cc oraz pc przyporzadkowuja kolory pionkow
 		 */
-		GameState(char cc, char pc);
+		GameState(char cc, char pc): playerColor(pc), computerColor(cc){std::cout << "Konstruktor GameState" << std::endl;}
 		//wykonanie ruchu przez komputer, wywoluje evaluate
-		std::string makeMove();
+		std::string makeMove()
+		{
+			return "";
+		}
 		//aktualizuje plansze po wykonaniu ruchu przez gracza
-		void updateState(std::string stateChange);
+		void updateState(std::string stateChange)
+		{
+			return;
+		}
 };
 
 
 #include <boost/python.hpp>
+using namespace boost;
 using namespace boost::python;
 
 
-BOOST_PYTHON_MODULE(game)
+BOOST_PYTHON_MODULE(GameState)
 {
+	initModule();
     // Create the Python type object for our extension class and define __init__ function.
     class_<GameState>("GameState", init<char, char>())
         .def("makeMove", &GameState::makeMove)  // Add a regular member function.
         .def("updateState", &GameState::updateState)  // Add invite() as a regular function to the module.
     ;
+    class_<SimpleChecker>("SimpleChecker", init<char, bool>())
+		.def("makeKing", &SimpleChecker::makeKing)
+		.def("getColor", &SimpleChecker::getColor)
+		.def("isKing", &SimpleChecker::isKing)
+		;
 }
 

@@ -1,0 +1,33 @@
+Projekt wymaga do działania następujących dodatkowych elementów:
+	Klient
+	-> Node.js
+	-> kompilator języka TypeScript w wersji 1.4.x
+	-> serwer HTTP: lighttpd
+	-> przeglądarka wspierająca HTML5
+	Serwer gry
+	-> interpreter języka Python
+	-> kompilator języka C++ (g++) z zainstalowanymi bibliotekami Boost
+
+Aby skompilować i uruchomić aplikację należy:
+
+-> Uruchomić dwa okna terminala i w obu przejść do głównego folderu aplikacji
+
+W pierwszym:
+-> Wydać polecenie make, aby skompilować źródła
+-> Uruchomić serwer gry:
+	cd CheckersServer
+	python Server.py
+
+W drugim:
+-> Uruchomić lighttpd z wykorzystaniem załączonego pliku konfiguracyjnego wydając polecenie:
+	lighttpd -D -f lighttpd.conf
+-> Otworzyć przeglądarkę obsługującą HTML5 i wejść pod adres localhost:3000
+
+Adnotacja:
+W dołączonym zrzucie z repozytorium oprócz szkieletu, źródła zawierają częściową implementację.
+Serwer gry po uruchomieniu załącza testowy echo serwer Websocket, który odpowiada tą samą wiadomością, jaką otrzymał.
+Można sprawdzić jego działanie przez połączenie się dowolnym klientem protokołu WebSocket np.
+http://www.websocket.org/echo.html podając adres ws://localhost:8888
+Klient Websocket koniecznie musi być załadowany po protokole HTTP (nie HTTPS), gdyż przeglądarka może nie dopuścić
+do zestawienia połączenia niezabezpieczonego z zabezpieczonej strony.
+Klient zawiera zaś testy widoku: po załadowaniu przeglądarka powinna pokazać obracającą się planszę do warcab.

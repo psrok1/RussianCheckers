@@ -8,7 +8,8 @@
 class TopScorers(object):
 
     def __init__(self):
-        self.scorers = []
+        print 'Konstruktor TopScores'
+	self.scorers = []
         
     """Wczytuje ostatnio zapisana wersje listy"""
     def read(self):
