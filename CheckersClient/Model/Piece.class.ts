@@ -104,6 +104,10 @@
             return this.board;
         }
 
+        public isCaptured(): boolean {
+            return this.captured;
+        }
+
         public sliceObservers() {
             var obs = [];
             obs = this.observers.slice();

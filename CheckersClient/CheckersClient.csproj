@@ -23,8 +23,13 @@
     <Content Include="Pixi\pixi.dev.js" />
     <Content Include="Pixi\pixi.js" />
     <Content Include="Textures\field_b.png" />
+    <Content Include="Textures\field_sel.png" />
     <Content Include="Textures\field_w.png" />
     <Content Include="Textures\game_bg.jpg" />
+    <Content Include="Textures\piece_b.png" />
+    <Content Include="Textures\piece_b_king.png" />
+    <Content Include="Textures\piece_w.png" />
+    <Content Include="Textures\piece_w_king.png" />
     <Content Include="Textures\plansza.png" />
     <Content Include="web.config" />
   </ItemGroup>
@@ -52,6 +57,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Pixi\pixi.dev.js.map" />
+    <None Include="LocalServer.pubxml" />
+    <None Include="PersistentServer.pubxml" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

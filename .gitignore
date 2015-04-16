@@ -195,3 +195,6 @@ _references.js
 
 # TypeScript class generated files
 *.class.js
+
+# Publish Visual Studio settings
+*.pubxml

@@ -26,12 +26,10 @@
                     var field = new Field(new Model.Field(x, y), this);
                     this.fields.push(field);
                 }
-            /*
             // Konstruuje pionki planszy
             this.pieces = new Array();
             for (var i = 0; i < 24; i++)
                 this.pieces.push(new Piece(this));
-            */
         }
 
         /*
@@ -83,6 +81,17 @@
                 this.fields[e].unselect();
         }
         
+        /*
+         * Zmienia interaktywność
+         */
+
+        public setInteractive(interactive: boolean) {
+            for (var e in this.pieces)
+                this.pieces[e].setInteractive(interactive);
+            for (var e in this.fields)
+                this.fields[e].setInteractive(interactive);
+        }
+
         /*
          * Pobiera obiekt pola widoku na podstawie obiektu pola modelu
          */

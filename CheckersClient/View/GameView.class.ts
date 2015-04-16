@@ -34,6 +34,26 @@
             this.background.position = new PIXI.Point(0, 0);
             this.getStage().addChild(this.background);
             this.board = new Board(this);
+            // TEST ---
+            var game = new Controller.Game(this);
+            game.newTestGame();
+        }
+
+        /*
+         * Metoda zwracająca obiekt widoku reprezentujący planszę gry
+         */
+
+        public getBoard(): Board {
+            return this.board;
+        }
+
+        /*
+         * Metoda zmieniająca interaktywność widoku
+         */
+
+        public setInteractive(interactive: boolean) {
+            this.stage.interactive = interactive;
+            this.board.setInteractive(interactive);
         }
 
         /*
@@ -42,7 +62,6 @@
         public update() {
             if (this.currentTransition)
                 this.currentTransition.update();
-            this.board.getSprite().rotation += 0.01;
             // ...
         }
 

@@ -113,6 +113,26 @@
             {
                 name: "fieldBlack",
                 file: "Textures/field_b.png"
+            },
+            {
+                name: "fieldSelected",
+                file: "Textures/field_sel.png"
+            },
+            {
+                name: "pieceWhite",
+                file: "Textures/piece_w.png"
+            },
+            {
+                name: "pieceBlack",
+                file: "Textures/piece_b.png"
+            },
+            {
+                name: "pieceWhiteKing",
+                file: "Textures/piece_w_king.png"
+            },
+            {
+                name: "pieceBlackKing",
+                file: "Textures/piece_b_king.png"
             }
 
             // ...

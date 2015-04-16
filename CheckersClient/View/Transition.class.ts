@@ -122,11 +122,11 @@
     }
 
     /*
-     * Natychmiastowa akcja usunięcia obiektu z widoku
+     * Natychmiastowa akcja zniknięcia obiektu z widoku
      */
-    export class RemoveTransition extends ImmediateTransition {
+    export class HideTransition extends ImmediateTransition {
         constructor(view: GameView, object: PIXI.DisplayObject) {
-            super(view, view.getStage().removeChild.bind(view.getStage(), object));
+            super(view, function () { this.visible = false; }.bind(object));
         }
     }
 } 

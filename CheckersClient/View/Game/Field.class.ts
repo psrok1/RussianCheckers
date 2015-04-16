@@ -71,10 +71,25 @@
         }
 
         /*
+         * Zmiana interaktywności
+         */
+
+        public setInteractive(interactive: boolean) {
+            this.field.interactive = interactive;
+        }
+
+        /*
          * Rejestracja handlera zdarzenia wciśnięcia oznaczonego pola
          */
         public onSelectedClick(handler: (field: Field) => void) {
             this.onSelectedClickHandler = handler;
+        }
+
+        /*
+         * Pobranie pozycji pola
+         */
+        public getModelField(): Model.Field {
+            return this.position;
         }
     }
 

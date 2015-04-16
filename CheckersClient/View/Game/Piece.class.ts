@@ -24,15 +24,24 @@
          * Konstruktor tworzący pionek na danej planszy
          */
         constructor(board: Board) {
-            /*
-             * Tutaj stwórz sprite z odpowiednią teksturą
-             */
+            var textureManager = TextureManager.getInstance();
+            this.sprite = new PIXI.Sprite(textureManager.getTexture("pieceWhite"));
             this.board = board;
             this.board.getSprite().addChild(this.sprite);
             this.sprite.click = function () {
-                if(this.onClickHandler)
+                if(this.onClickHandler && !this.captured)
                     this.onClickHandler(this);
             }.bind(this);
+        }
+
+        /*
+         * Wyznacza teksturę do użycia dla danego pionka
+         */
+
+        private getTexture(): PIXI.Texture {
+            return TextureManager.getInstance().getTexture(
+                (this.color == Model.PieceColor.White ? "pieceWhite" : "pieceBlack") +
+                (this.isKing ? "King" : ""));
         }
 
         /*
@@ -40,18 +49,59 @@
          * Model pionka wywołuje tą metodę, gdy zmieni swój stan.
          */
         public notify(sender: Model.Piece) {
-            
+            var view: GameView = <GameView>ViewManager.getInstance().getView("game");
+            if (!sender.getPosition().equals(this.position)) {
+                this.position = sender.getPosition().clone();
+                view.addTransition(
+                    new MovementTransition(
+                        view, this.sprite,
+                        this.fieldToPosition(this.position),
+                        10));
+            }
+
+            if (sender.isCaptured()) {
+                this.captured = true;
+                view.addTransition(new HideTransition(view, this.sprite));
+            }
+
+            if (!this.isKing && (sender instanceof Model.King)) {
+                this.isKing = true;
+                view.addTransition(new SetTextureTransition(
+                    view, this.sprite, this.getTexture()));
+            }
+        }
+
+        /*
+         * Wyznacza współrzędne pola na widoku planszy
+         */
+        private fieldToPosition(field: Model.Field): PIXI.Point {
+            return new PIXI.Point(
+                field.x * 48 - 192,
+                field.y * 48 - 192);
         }
 
         /*
          * Sprzężenie obserwatora pionka z nowym modelem dla nowej gry
          */
         public initialize(piece: Model.Piece) {
-            /*
-             * Ustaw teksture i pozycje pionka zgodnie z modelem
-             * Dodaj sie do listy obserwatorow danego pionka
-             */
+            // Aktualizacja kopii stanu
+            this.position = piece.getPosition().clone();
+            this.color = piece.getColor();
+            this.isKing = (piece instanceof Model.King);
+            this.captured = piece.isCaptured();
+            // Zmiana widoku
+            this.sprite.setTexture(this.getTexture());
+            this.sprite.position = this.fieldToPosition(piece.getPosition());
+            this.sprite.visible = true;
+            // Podpiecie sie do modelu jako obserwator
             piece.bindObserver(this);
+        }
+
+        /*
+         * Zmiana interaktywności
+         */
+        public setInteractive(interactive: boolean) {
+            this.sprite.interactive = interactive;
         }
 
         /*
@@ -65,7 +115,7 @@
          * Pobiera odpowiadający obiekt modelu
          */
         public getPieceModel(model: Model.GameModel): Model.Piece {
-            return model.getBoard().getPiece(this.position);;
+            return model.getBoard().getPiece(this.position);
         }
     }
 } 
