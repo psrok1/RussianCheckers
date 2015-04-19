@@ -34,9 +34,6 @@
             this.background.position = new PIXI.Point(0, 0);
             this.getStage().addChild(this.background);
             this.board = new Board(this);
-            // TEST ---
-            var game = new Controller.Game(this);
-            game.newTestGame();
         }
 
         /*
