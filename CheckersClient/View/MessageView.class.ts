@@ -17,5 +17,10 @@
         public setMessage(message: string) {
             this.messageText.setText(message);
         }
+
+        public static showMessage(message: string) {
+            (<MessageView>ViewManager.getInstance().getView("message")).setMessage(message);
+            ViewManager.getInstance().switchView("message");
+        }
     }
 } 

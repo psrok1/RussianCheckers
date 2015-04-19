@@ -11,14 +11,16 @@ window.onload = () => {
 
     textureManager.onProgress(function (loadedTextureName: string) {
         var that: View.MessageView = this;
-        that.setMessage("Ładowanie tekstur: "+loadedTextureName);
+        that.setMessage("Ładowanie tekstur: " + loadedTextureName);
     }.bind(viewManager.getView("message")));
 
     textureManager.onLoaded(function () {
         var that: View.ViewManager = this;
         that.registerView("menu", new View.MenuView());
         that.registerView("game", new View.GameView());
-        that.switchView("game");
+        /* --- TEST --- */
+        var gameController = new Controller.Game(<View.GameView>that.getView("game"));
+        gameController.startNewGame(null);
     }.bind(viewManager));
 
     textureManager.loadTextures();
