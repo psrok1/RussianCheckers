@@ -113,7 +113,11 @@
             obs = this.observers.slice();
             return obs;
         }
-
+        public sliceCache() {
+            var obs = [];
+            obs = this.positionCache.slice();
+            return obs;
+        }
         public bindObserver(observer: View.ModelObserver<Piece>)
         {
             this.observers.push(observer);

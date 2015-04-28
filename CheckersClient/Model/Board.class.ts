@@ -61,5 +61,19 @@
             if (color === PieceColor.Black) this.blackRemaining--;
             else this.whiteRemaining--;
         }
+
+        public anyCaptures(pieceColor: PieceColor): boolean {
+
+            for (var i = 0; i < 8; ++i) {
+                for (var j = 0; j < 8; ++j) {
+                    if (this.pieces[i * 8 + j] !== null && this.pieces[i * 8 + j].getColor() === pieceColor) {
+                        var temp = this.pieces[i * 8 + j].getPossibilities(true);
+                        if (temp.length !== 0) return true;
+                    }
+
+                }
+            }
+            return false;
+        }
     }
 }

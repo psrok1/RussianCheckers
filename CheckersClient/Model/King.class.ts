@@ -5,6 +5,7 @@
         public constructor(piece: Piece) {
             super(piece.getColor(), piece.getBoard(), piece.getPosition());
             this.observers = piece.sliceObservers();
+            this.positionCache = piece.sliceCache();
             this.update();
         }
 
