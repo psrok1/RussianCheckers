@@ -169,7 +169,7 @@
             var msgMoves: String[] = [];
 
             for (var e in moves)
-                msgMoves.push(xStr[moves[e].x] + xStr[moves[e].y]);
+                msgMoves.push(xStr[moves[e].x] + yStr[moves[e].y]);
             
             var msg = JSON.stringify({
                 message: "move",
