@@ -147,7 +147,8 @@
         private selectLockedPiece() {
             this.choosedPiece = this.lockedOnPiece;
             var pieceModel = this.lockedOnPiece.getPieceModel(this.model);
-            var moves = pieceModel.getPossibilities(true);
+            var captures = this.model.getBoard().anyCaptures(pieceModel.getColor());
+            var moves = pieceModel.getPossibilities(captures);
             this.view.getBoard().unselectAllFields();
             for (var p in moves)
                 this.view.getBoard().getField(moves[p]).select();
