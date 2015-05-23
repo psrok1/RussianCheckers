@@ -3,6 +3,7 @@
      * Klasa kontrolera gry
      */
     export class Game {
+        private app: App;
         private webClient: WebClient;
         private view: View.GameView;
         
@@ -19,13 +20,14 @@
          * Konstruktor kontrolera.
          * Powiązuje kontroler z widokiem gry
          */
-        constructor(view: View.GameView) {
+        constructor(view: View.GameView, app: App) {
             this.view = view;
+            this.app = app;
             // Powiaz kontroler z widokiem
             this.view.getBoard().onPieceClick(this.onPieceClick.bind(this));
             this.view.getBoard().onSelectedFieldClick(this.onSelectedFieldClick.bind(this));
-            // Stworz instancję klienta WebSocket
-            this.webClient = new WebClient();
+            // Pobierz z głównego kontrolera instancję Websocket
+            this.webClient = this.app.getClientInstance();
         }
 
         /*
@@ -37,8 +39,8 @@
             this.choosedPiece = null;
             this.lockedOnPiece = null;
             this.serverMoveCache = null;
-            // Powiaz model z widokiem
-            this.view.getBoard().initialize(this.model.getBoard());
+            // Powiąż model z widokiem
+            this.view.getBoard().initialize(this.model.getBoard(), localPieces);
             // Przełącz na widok gry
             View.ViewManager.getInstance().switchView("game");
             // Po zakończeniu przygotowań widoku...
@@ -60,6 +62,16 @@
             this.serverMoveCache = [];
             this.serverMoveCache.push(from);
             this.serverMoveCache = this.serverMoveCache.concat(to);
+        }
+
+        /*
+         * Handler zakończenia gry
+         */
+        private onServerEnd(time: number, win: boolean) {
+            // Usuń timer oczekiwania
+            if(this.serverMoveTimer != null)
+                clearInterval(this.serverMoveTimer);
+            // 
         }
 
         /*
@@ -87,6 +99,7 @@
             this.view.playTransition();
             // Usuń timer
             clearInterval(this.serverMoveTimer);
+            this.serverMoveTimer = null;
         }
 
         /*
@@ -114,12 +127,14 @@
                 that.webClient.sayHello(this.desiredColor);
             }.bind({
                 that: this,
-                desiredColor: Model.PieceColor
+                desiredColor: desiredColor
                 }));
             // Po otrzymaniu hello...
             this.webClient.onServerHello(this.onServerHello.bind(this));
             // Po otrzymaniu ruchu
             this.webClient.onServerMove(this.onServerMove.bind(this));
+            // Po zakończeniu gry
+            this.webClient.onServerEnd(this.onServerEnd.bind(this));
             // Rozpoczęcie połączenia
             this.webClient.open();
         }
@@ -132,8 +147,11 @@
             if (this.lockedOnPiece)
                 return;
             var pieceModel = piece.getPieceModel(this.model);
-            // --- TODO LINE BELOW ---
-            var moves = pieceModel.getPossibilities(false/*this.model.getBoard().anyCaptures()*/);
+            // Jeśli pionek nie należy do nas
+            if (pieceModel.getColor() != this.model.getLocalPieces())
+                return;
+            // Pobierz możliwe ruchy dla tego pionka
+            var moves = pieceModel.getPossibilities(this.model.getBoard().anyCaptures(pieceModel.getColor()));
             this.view.getBoard().unselectAllFields();
             if (moves.length > 0)
                 this.choosedPiece = piece;

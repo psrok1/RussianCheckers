@@ -91,7 +91,7 @@
         }
     }
 
-    interface TextureData {
+    type TextureData = {
         name: string;
         file: string;
     }
@@ -127,14 +127,21 @@
                 file: "Textures/piece_b.png"
             },
             {
+                name: "pieceAuto",
+                file: "Textures/piece_wb.png"
+            },
+            {
                 name: "pieceWhiteKing",
                 file: "Textures/piece_w_king.png"
             },
             {
                 name: "pieceBlackKing",
                 file: "Textures/piece_b_king.png"
+            },
+            {
+                name: "title",
+                file: "Textures/title.png"
             }
-
             // ...
         ]
 

@@ -29,12 +29,15 @@
     <Content Include="Textures\piece_b.png" />
     <Content Include="Textures\piece_b_king.png" />
     <Content Include="Textures\piece_w.png" />
+    <Content Include="Textures\piece_wb.png" />
     <Content Include="Textures\piece_w_king.png" />
     <Content Include="Textures\plansza.png" />
+    <Content Include="Textures\title.png" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="Controller\App.class.ts" />
     <TypeScriptCompile Include="Controller\Game.class.ts" />
     <TypeScriptCompile Include="Controller\WebClient.class.ts" />
     <TypeScriptCompile Include="Model\Board.class.ts" />
@@ -42,6 +45,7 @@
     <TypeScriptCompile Include="Model\King.class.ts" />
     <TypeScriptCompile Include="Model\GameModel.class.ts" />
     <TypeScriptCompile Include="Model\Piece.class.ts" />
+    <TypeScriptCompile Include="Model\Rank.class.ts" />
     <TypeScriptCompile Include="Pixi\pixi.d.ts" />
     <TypeScriptCompile Include="View\GameView.class.ts" />
     <TypeScriptCompile Include="View\Game\Board.class.ts" />

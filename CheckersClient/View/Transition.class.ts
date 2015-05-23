@@ -48,9 +48,11 @@
             this.object = object;
             this.target = target;
             this.speed = speed;
+        }
 
-            this.dx = target.x - object.position.x;
-            this.dy = target.y - object.position.y;
+        public play() {
+            this.dx = this.target.x - this.object.position.x;
+            this.dy = this.target.y - this.object.position.y;
             this.xi = (this.dx < 0 ? -1 : 1);
             this.yi = (this.dy < 0 ? -1 : 1);
             this.dx = Math.abs(this.dx);
@@ -94,6 +96,34 @@
             }
         }
     }
+
+    export class RotateTransition extends Transition {
+        private object: PIXI.DisplayObject;
+        private steps: number;
+        private rotationStep: number;
+        private direction: RotateTransitionDirection;
+
+        constructor(view: GameView, object: PIXI.DisplayObject, direction: RotateTransitionDirection) {
+            super(view);
+            this.object = object;
+            this.direction = direction;
+
+            this.steps = 40;
+            this.rotationStep = (Math.PI / 2) / this.steps;
+        }
+
+        public update() {
+            this.object.rotation += this.direction * this.rotationStep;
+            if (--this.steps <= 0)
+                this.view.nextTransition();
+        }
+    }
+
+    export const enum RotateTransitionDirection {
+        LEFT = -1,
+        RIGHT = 1
+    }
+
 
     /*
      * Klasa reprezentująca sekwencyjne akcje natychmiastowe

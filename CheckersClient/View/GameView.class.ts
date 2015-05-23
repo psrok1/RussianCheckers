@@ -59,28 +59,27 @@
         public update() {
             if (this.currentTransition)
                 this.currentTransition.update();
-            // ...
         }
 
         /*
          * Metoda wywoływana przy dezaktywacji tego widoku
          */
-        public pause(): boolean {
-            if (!super.pause())
-                return false;
-            // ...
-            return true;
-        }
+        //public pause(): boolean {
+        //    if (!super.pause())
+        //        return false;
+        //    // ...
+        //    return true;
+        //}
 
         /*
          * Metoda wywoływana przy aktywacji tego widoku
          */
-        public resume() {
-            if (!super.resume())
-                return false;
-            // ...
-            return true;
-        }
+        //public resume() {
+        //    if (!super.resume())
+        //        return false;
+        //    // ...
+        //    return true;
+        //}
 
         /*
          * Rejestracja przejścia synchronicznego

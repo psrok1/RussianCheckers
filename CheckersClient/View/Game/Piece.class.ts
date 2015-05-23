@@ -44,6 +44,11 @@
                 (this.isKing ? "King" : ""));
         }
 
+        private switchOnTop() {
+            var boardSprite = this.board.getSprite();
+            boardSprite.setChildIndex(this.sprite, boardSprite.children.length - 1);
+        }
+
         /*
          * Metoda notify: interfejs komunikacji z modelem.
          * Model pionka wywołuje tą metodę, gdy zmieni swój stan.
@@ -52,6 +57,9 @@
             var view: GameView = <GameView>ViewManager.getInstance().getView("game");
             if (!sender.getPosition().equals(this.position)) {
                 this.position = sender.getPosition().clone();
+                // Skoro zmieniła się jego pozycja, to pewnie zaraz będzie przesunięty
+                // Skoro będzie przesunięty to najlepiej go rzucić od razu na samą górę
+                this.switchOnTop();
                 view.addTransition(
                     new MovementTransition(
                         view, this.sprite,

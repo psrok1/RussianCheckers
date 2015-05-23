@@ -34,7 +34,7 @@
         /*
          * Zdarzenie wyzwalane, gdy serwer uzna, że gra jest zakończona.
          */
-        private onServerEndHandler: (time: number) => void = null;
+        private onServerEndHandler: (time: number, win: boolean) => void = null;
         /*
          * Zdarzenie wyzwalane po otrzymaniu bieżącego rankingu od serwera.
          */
@@ -79,13 +79,13 @@
                 if (!this.onServerRankHandler)
                     return;
                 this.onServerRankHandler(response.times.slice());
-            }
+            }.bind(this);
 
             var endHandler = function (response: ServerEndResponse) {
                 if (!this.onServerEndHandler)
                     return;
-                this.onServerEndHandler(response.time);
-            }
+                this.onServerEndHandler(response.time, response.clientWin);
+            }.bind(this);
 
             switch (response.message) {
                 case "hello":
@@ -182,7 +182,7 @@
          * Metoda wysyłająca żądanie odczytania bieżącego rankingu
          */
 
-        public getRank() {
+        public requestRank() {
             var msg = JSON.stringify({
                 message: "rank"
             });
@@ -211,7 +211,7 @@
             this.onServerMoveHandler = handler;
         }
 
-        public onServerEnd(handler: (time: number) => void) {
+        public onServerEnd(handler: (time: number, win: boolean) => void) {
             this.onServerEndHandler = handler;
         }
 
@@ -234,6 +234,7 @@
 
     interface ServerEndResponse extends ServerResponse {
         time: number;
+        clientWin: boolean;
     }
 
     interface ServerRankResponse extends ServerResponse {

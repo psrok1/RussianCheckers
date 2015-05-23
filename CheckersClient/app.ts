@@ -16,11 +16,10 @@ window.onload = () => {
 
     textureManager.onLoaded(function () {
         var that: View.ViewManager = this;
-        that.registerView("menu", new View.MenuView());
-        that.registerView("game", new View.GameView());
-        /* --- TEST --- */
-        var gameController = new Controller.Game(<View.GameView>that.getView("game"));
-        gameController.startNewGame(null);
+        var menuView = <View.MenuView>that.registerView("menu", new View.MenuView());
+        var gameView = <View.GameView>that.registerView("game", new View.GameView());
+        var appController = new Controller.App(menuView, gameView);
+        appController.showMenu();
     }.bind(viewManager));
 
     textureManager.loadTextures();

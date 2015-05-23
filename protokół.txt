@@ -1,0 +1,111 @@
+---------------------- RussianCheckers -----------------------
+------------- PROTOKÓŁ KOMUNIKACJI KLIENT-SERWER -------------
+
+Komunikacja będzie odbywała się za pośrednictwem obiektów JSON.
+
+------------------- STRUKTURA KOMUNIKATÓW --------------------
+Poniżej zostanie opisana struktura podstawowych komunikatów protokołu i przykładowa postać JSON
+
+---------------------------
+- STRUKTURA ŻĄDAŃ KLIENTA -
+---------------------------
+
+ClientRankRequest - żądanie rankingu
+	String    message = "rank"
+Przykład JSON:
+	{"message": "rank"}
+
+ClientHelloRequest - żądanie rozpoczęcia gry z preferencją koloru pionka
+	String    message = "hello"
+	String    pieces = ("white" | "black" | "auto")   // opisuje jakimi pionkami chce grać gracz
+Przykład JSON:
+	{"message": "hello", "pieces": "auto"}
+
+ClientReadyRequest - informacja o zestawieniu gry po stronie klienta
+	String    message = "ready"
+Przykład JSON:
+	{"message": "ready"}
+
+ClientMoveRequest - informacja o wykonaniu ruchu przez gracza
+	String    message = "move"
+	String[]  moves = [from, to...]
+Przykład JSON:
+	Przykład opisuje ruch pionka z pola B6 na pola D4 i F6 (podwójne bicie)
+	{"message": "move", "moves": ["B6", "D4", "F6"]}
+
+--------------------------------
+- STRUKTURA ODPOWIEDZI SERWERA -
+--------------------------------
+
+ServerHelloResponse - informacja o zestawieniu gry po stronie serwera
+	String    message = "hello"
+	String    pieces  = ("white" | "black")     // kolor pionków, jakie wybrał serwer dla gracza
+                                                // jeśli gracz wybrał konkretne pionki: wysyła po prostu wybrany przez niego kolor
+Przykład JSON:
+	{"message": "hello", "pieces": "white"}
+
+ServerMoveResponse - informacja o wykonaniu ruchu przez serwer (analogicznie jak ClientMoveRequest)
+	String    message = "move"
+	String[]  moves = [from, to...]
+Przykład JSON:
+	{"message": "move", "moves": ["A2", "B3", "C4"]}
+
+ServerEndResponse - informacja o tym, że gra się zakończyła (serwer stwierdził, że któraś ze stron wygrała)
+	String    message = "end"
+	Number    time                              // czas gry w sekundach
+	Boolean   clientWin                         // true jeśli wygrał gracz, false jeśli wygrał serwer
+Przykład JSON:
+	{"message": "end", "time": 68, "clientWin": true}
+
+ServerRankResponse
+	String	  message = "rank"
+	Number[]  times                             // tablica czasów w sekundach, od najlepszego do najgorszego
+	                                            // klient jest w stanie obsłużyć maksymalnie 5 wpisów
+Przykład JSON:
+	{"message": "rank", "times": [100, 200, 300, 400, 500]}
+
+----------- PRZYKŁADOWY LOG KOMUNIKACJI Z KLIENTEM -----------
+
+// Na początku pojawi się menu, zostanie zestawione połączenie wyłącznie w celu pobrania rankingu
+OPENED CONNECTION
+client> {"message": "rank"}
+server> {"message": "rank", "times": [100, 200, 300, 400, 500]}
+CLOSED CONNECTION BY CLIENT
+// Tutaj zestawiamy grę, najpierw handshake
+OPENED CONNECTION
+client> {"message": "hello", "pieces": "auto"}
+server> {"message": "hello", "pieces": "white"}
+client> {"message": "ready"}
+// Jeśli serwer grałby białymi, to on by zaczynał. Dopiero po otrzymaniu ready od klienta może wysłać swój ruch
+// Tutaj jednak serwer wybrał białe dla klienta, czeka na ruch
+client> {"message": "move", "moves": ["A3", "B4"]}
+server> {"message": "move", "moves": ["B6", "A5"]}
+client> {"message": "move", "moves": ["C3", "D4"]}
+// No i serwer robi podwójne bicie :)
+server> {"message": "move", "moves": ["A5", "C3", "E5"]}
+// ... gra toczy się dalej, w końcu jednak gracz wygrał
+server> {"message": "end", "time": 68, "clientWin": true}
+// Klient się rozłącza (serwer nigdy sam nie kończy połączenia!)
+CLOSED CONNECTION BY CLIENT
+
+-------------------- ORIENTACJA PLANSZY ----------------------
+Zawsze białe są po stronie 1-3, a czarne po stronie 6-8
+
+ A B C D E F G H 
+-----------------
+| |c| |c| |c| |c| 8
+-----------------
+|c| |c| |c| |c| | 7
+-----------------
+| |c| |c| |c| |c| 6
+-----------------
+| | | | | | | | | 5
+-----------------
+| | | | | | | | | 4
+-----------------
+|b| |b| |b| |b| | 3
+-----------------
+| |b| |b| |b| |b| 2
+-----------------
+|b| |b| |b| |b| | 1
+-----------------

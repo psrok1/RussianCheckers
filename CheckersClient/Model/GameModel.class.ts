@@ -32,5 +32,9 @@
         public getBoard(): Board {
             return this.board;
         }
+
+        public getLocalPieces(): PieceColor {
+            return this.localPieces;
+        }
     }
 }

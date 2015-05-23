@@ -37,7 +37,7 @@
          * Obraca planszę do neutralnej pozycji
          * Rejestruje w widoku przejście obracające planszę w stronę gracza
          */
-        public initialize(boardModel: Model.Board) {
+        public initialize(boardModel: Model.Board, localPieces: Model.PieceColor) {
             // Inicjalizuj czarne pionki
             for (var i = 0; i < 12; i++) {
                 var pieceField = new Model.Field(0, Math.floor(i/4));
@@ -55,6 +55,14 @@
             /*
              * Tutaj wykonamy obrot planszy
              */
+            this.board.rotation = -(Math.PI / 2);
+            this.view.addTransition(
+                new RotateTransition(
+                    this.view,
+                    this.board,
+                    (localPieces == Model.PieceColor.White
+                        ? RotateTransitionDirection.RIGHT
+                        : RotateTransitionDirection.LEFT)));
         }
 
         /*
