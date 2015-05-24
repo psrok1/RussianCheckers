@@ -141,6 +141,22 @@
             {
                 name: "title",
                 file: "Textures/title.png"
+            },
+            {
+                name: "turnWhite",
+                file: "Textures/turn_w.png"
+            },
+            {
+                name: "turnBlack",
+                file: "Textures/turn_b.png"
+            },
+            {
+                name: "turnWhiteDisabled",
+                file: "Textures/turn_w_dis.png"
+            },
+            {
+                name: "turnBlackDisabled",
+                file: "Textures/turn_b_dis.png"
             }
             // ...
         ]

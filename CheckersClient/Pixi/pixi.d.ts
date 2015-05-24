@@ -174,7 +174,7 @@ declare module PIXI {
 
     export class AbstractFilter {
 
-        constructor(fragmentSrc: string[], uniforms: any);
+        constructor(fragmentSrc?: string[], uniforms?: any);
 
         dirty: boolean;
         padding: number;

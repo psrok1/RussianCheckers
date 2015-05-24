@@ -124,6 +124,22 @@
         RIGHT = 1
     }
 
+    export class GameEndTransition extends Transition {
+        private grayness: number = 0;
+
+        constructor(view: GameView) {
+            super(view);
+        }
+
+        public update() {
+            this.grayness += 0.01;
+            this.view.setGrayness(this.grayness);
+            if (this.grayness >= 1) {
+                this.view.showEndGameMessage();
+                this.view.nextTransition();
+            }
+        }
+    }
 
     /*
      * Klasa reprezentująca sekwencyjne akcje natychmiastowe

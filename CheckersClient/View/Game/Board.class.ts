@@ -43,14 +43,14 @@
                 var pieceField = new Model.Field(0, Math.floor(i/4));
                 pieceField.x = (i * 2) % 8 + ((pieceField.y+1) % 2);
                 var pieceModel = boardModel.getPiece(pieceField);
-                this.pieces[i].initialize(pieceModel);
+                this.pieces[i].initialize(pieceModel, localPieces);
             }
             // Inicjalizuj biale pionki
             for (var i = 0; i < 12; i++) {
                 var pieceField = new Model.Field(0, Math.floor(i / 4)+5);
                 pieceField.x = (i * 2) % 8 + ((pieceField.y-5) % 2);
                 var pieceModel = boardModel.getPiece(pieceField);
-                this.pieces[i+12].initialize(pieceModel);
+                this.pieces[i+12].initialize(pieceModel, localPieces);
             }
             /*
              * Tutaj wykonamy obrot planszy

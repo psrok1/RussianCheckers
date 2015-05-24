@@ -29,6 +29,16 @@
             return this.gameTime;
         }
 
+        public syncClockTicks(serverTime: number) {
+            this.gameTime = serverTime;
+        }
+
+        public getFormattedClockTicks(): string {
+            var m = Math.floor(this.gameTime / 60)
+            var s = (this.gameTime % 60);
+            return m + ":" + (s < 10 ? "0" + s : s);
+        }
+
         public getBoard(): Board {
             return this.board;
         }

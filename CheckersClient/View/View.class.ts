@@ -21,6 +21,8 @@
         public resume(): boolean {
             if (this.paused) {
                 this.paused = false;
+                // PIXI: Lost interactivity fix
+                (<any>this.stage)._interactiveEventsAdded = false;
                 return true;
             } else
                 return false;

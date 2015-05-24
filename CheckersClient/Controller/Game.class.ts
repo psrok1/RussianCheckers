@@ -14,7 +14,8 @@
         private choosedPiece: View.Piece = null;
         private lockedOnPiece: View.Piece = null;
         private serverMoveCache: Model.Field[] = null;
-        private serverMoveTimer: number;
+        private serverMoveTimer: number = null;
+        private gameTimer: number = null;
 
         /*
          * Konstruktor kontrolera.
@@ -26,6 +27,10 @@
             // Powiaz kontroler z widokiem
             this.view.getBoard().onPieceClick(this.onPieceClick.bind(this));
             this.view.getBoard().onSelectedFieldClick(this.onSelectedFieldClick.bind(this));
+            this.view.onGameEnd(function () {
+                var that: Game = this;
+                that.app.showMenu();
+            }.bind(this));
             // Pobierz z głównego kontrolera instancję Websocket
             this.webClient = this.app.getClientInstance();
         }
@@ -46,7 +51,7 @@
             // Po zakończeniu przygotowań widoku...
             this.view.onTransitionEnd(function () {
                 var that = <Game>this;
-                // TODO: Wystartuj timer
+                that.startTimer();
                 that.updateTurn();
                 that.webClient.sayReady();
             }.bind(this));
@@ -71,7 +76,17 @@
             // Usuń timer oczekiwania
             if(this.serverMoveTimer != null)
                 clearInterval(this.serverMoveTimer);
-            // 
+            // Zawieś timer gry
+            this.stopTimer();
+            // Aktualizuj dane dotyczące czasu
+            this.model.syncClockTicks(time);
+            // Aktualizuj widok
+            this.view.setEndGameMessage(win, this.model.getFormattedClockTicks());
+            this.view.setInteractive(false);
+            // Dodaj przejście
+            this.view.addTransition(new View.GameEndTransition(this.view));
+            // Odpal przejście
+            this.view.playTransition();
         }
 
         /*
@@ -108,11 +123,37 @@
          */
         private updateTurn() {
             if (this.model.isLocalTurn())
+            {
+                this.view.updateTurn(this.model.getLocalPieces() == Model.PieceColor.White);
                 this.view.setInteractive(true);
+            }
             else {
+                this.view.updateTurn(this.model.getLocalPieces() != Model.PieceColor.White);
                 this.view.setInteractive(false);
                 this.serverMoveTimer = setInterval(this.doServerMove.bind(this));
             }
+        }
+
+        /*
+         * Uruchamia timer gry
+         */
+        private startTimer() {
+            if (this.gameTimer != null)
+                clearInterval(this.gameTimer);
+            this.gameTimer = setInterval(function () {
+                var that: Game = this;
+                that.model.nextClockTick();
+                that.view.updateTimer(that.model.getFormattedClockTicks());
+            }.bind(this), 1000)
+        }
+
+        /*
+         * Zatrzymuje timer gry
+         */
+        private stopTimer() {
+            if(this.gameTimer != null)
+                clearInterval(this.gameTimer);
+            this.gameTimer = null;
         }
 
         /*
@@ -165,8 +206,7 @@
         private selectLockedPiece() {
             this.choosedPiece = this.lockedOnPiece;
             var pieceModel = this.lockedOnPiece.getPieceModel(this.model);
-            var captures = this.model.getBoard().anyCaptures(pieceModel.getColor());
-            var moves = pieceModel.getPossibilities(captures);
+            var moves = pieceModel.getPossibilities(true);
             this.view.getBoard().unselectAllFields();
             for (var p in moves)
                 this.view.getBoard().getField(moves[p]).select();

@@ -91,7 +91,7 @@
         /*
          * Sprzężenie obserwatora pionka z nowym modelem dla nowej gry
          */
-        public initialize(piece: Model.Piece) {
+        public initialize(piece: Model.Piece, localPieces: Model.PieceColor) {
             // Aktualizacja kopii stanu
             this.position = piece.getPosition().clone();
             this.color = piece.getColor();
@@ -101,6 +101,8 @@
             this.sprite.setTexture(this.getTexture());
             this.sprite.position = this.fieldToPosition(piece.getPosition());
             this.sprite.visible = true;
+            // Korekta obrotu, aby poprawnie wyswietlala sie damka
+            this.sprite.rotation = (localPieces === Model.PieceColor.Black ? Math.PI : 0);
             // Podpiecie sie do modelu jako obserwator
             piece.bindObserver(this);
         }

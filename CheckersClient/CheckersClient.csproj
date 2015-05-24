@@ -33,6 +33,10 @@
     <Content Include="Textures\piece_w_king.png" />
     <Content Include="Textures\plansza.png" />
     <Content Include="Textures\title.png" />
+    <Content Include="Textures\turn_b.png" />
+    <Content Include="Textures\turn_b_dis.png" />
+    <Content Include="Textures\turn_w.png" />
+    <Content Include="Textures\turn_w_dis.png" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
