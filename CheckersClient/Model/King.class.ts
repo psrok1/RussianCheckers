@@ -17,7 +17,7 @@
         /**
          * Metoda zwracająca pole, na którym stoi pion do potencjalnego zbicia (w danym kierunku)
          */
-        public findToJump(from: Field, varX: number, varY: number, color: PieceColor) { 
+        private findToJump(from: Field, varX: number, varY: number, color: PieceColor) { 
             var temp = new Field(from.x + varX, from.y + varY);
             while (this.board.getPiece(temp) === null) {
                 temp.x += varX;

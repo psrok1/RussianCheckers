@@ -71,6 +71,7 @@
 
         /**
          * Przesunięcie pionka na zadane pole
+         * Zwraca: czy w nastepnym ruchu moze byc wykonywane bicie
          */
         public move(to: Field): boolean {
             var from = this.position;
@@ -205,16 +206,14 @@
          * Zamiana piona na damke, ustalenie czy bije dalej
          */
        private kingChange(jumped: boolean) {
-           var x = [-1, -1, 1, 1];
-           var y = [-1, 1, -1, 1];
+           var poss = [];
            var king = new King(this);
            this.board.setPiece(this.position, king);
            this.captured = true;
            if (jumped == false) return false;
-           for (var i = 0; i < 4; ++i) {
-               if (king.findToJump(king.position, x[i], y[i], king.color) !== null) return true; // znalazl jakies bicie
-           }
-           return false; // nie znalazl zadnego bicia
+           poss = king.getPossibilities(true); // szukanie wszystkich bic dostepnych dla nowopowstalej damki
+           if (poss.length === 0) return false; // nie ma bic - nie bije dalej.
+           return true; // kolejne bicia znalezione
        }
     }
 
