@@ -65,5 +65,5 @@ if __name__ == "__main__":
     #topscore = TopScorers.TopScorers()
     application = tornado.web.Application([
     (r'/', WSHandler)])
-    application.listen(8888)
+    application.listen(3000)
     tornado.ioloop.IOLoop.instance().start()
