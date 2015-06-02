@@ -1,7 +1,12 @@
 ﻿module Model {
+    /**
+     * Model damki
+     */
     export class King extends Piece {
-        //klasa rerezentujaca damke
-
+        /**
+         * Konstruktor damki
+         * @param piece Pionek, z którego wywodzi się damka
+         */
         public constructor(piece: Piece) {
             super(piece.getColor(), piece.getBoard(), piece.getPosition());
             this.observers = piece.sliceObservers();
@@ -9,9 +14,10 @@
             this.update();
         }
 
-
+        /**
+         * Metoda zwracająca pole, na którym stoi pion do potencjalnego zbicia (w danym kierunku)
+         */
         public findToJump(from: Field, varX: number, varY: number, color: PieceColor) { 
-            // metoda zwracajaca pole, na ktorym stoi pion do potencjalnego zbicia (w danym kierunku)
             var temp = new Field(from.x + varX, from.y + varY);
             while (this.board.getPiece(temp) === null) {
                 temp.x += varX;
@@ -21,8 +27,11 @@
             return temp;
         }
 
+        /**
+         * Metoda zwracająca tablicę pól, na które może przesunąc się damka
+         * @param onlyCaptures True, gdy żądamy samych bić
+         */
         public getPossibilities(onlyCaptures: boolean): Field[] { 
-            // metoda zwracajaca tablice pol, na ktore moze przesunac sie damka, onlyCaptures == true gdy zadamy samych bic
             var poss = [];
             var num = 0;
             var temp, temp2;
@@ -48,8 +57,10 @@
             return poss;
         }
 
+        /**
+         * Metoda przesuwająca damkę, zakłada poprawność wywoływanego ruchu
+         */
         public move(to: Field): boolean { 
-            // metoda przesuwajaca damke, zaklada poprawnosc wywolywanego ruchu
             var from = this.position;
             var temp;
             var jumped = false;
@@ -79,19 +90,21 @@
             return false; //nie znaleziono bicia 
         }
 
-
+        /**
+         * Metoda znajduje wszystkie pola na które można przesunąć damkę bez bicia, 
+         * z danego pola w danym kierunku
+         */
         private kingMove(from: Field, valX: number, valY: number, dist: number): Field { 
-            /* metoda znajduje wszystkie pola na ktore mozna przesunac damke bez bicia, 
-             * z danego pola w danym kierunku
-            */
             var temp = new Field(from.x + valX * dist, from.y + valY * dist);
             var piece = this.board.getPiece(temp);
             if (piece === null) return temp;
             else return null;
         }
 
+        /**
+         * Sprawdzenie, czy poruszająca się damka zbija inny pion
+         */
         private hasCapture(temp: Field, to: Field, varX: number, varY: number): boolean{
-            // sprawdzenie czy poruszajaca sie damka zbija inny pion
             temp.x += varX;
             temp.y += varY;
             while (temp.x !== to.x) { // petla wyszukujaca potencjalne bicie
@@ -104,7 +117,6 @@
             }
             return false;  
         }
-        
     }
 
 } 

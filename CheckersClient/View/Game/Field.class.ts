@@ -1,20 +1,26 @@
 ﻿module View {
-    /*
+    /**
      * Klasa obiektu pola na planszy widoku gry
      */
     export class Field {
-        private state: FieldState;      // Kolor i stan pola
-        private field: PIXI.Sprite;     // Obiekt widoku
-        private position: Model.Field;  // Pozycja pola na planszy
-        private board: Board;           // Obiekt planszy
+        /** Kolor i stan pola */
+        private state: FieldState;
+        /** Obiekt widoku pola */
+        private field: PIXI.Sprite;
+        /** Pozycja pola na planszy */
+        private position: Model.Field;
+        /** Obiekt planszy */
+        private board: Board;
 
-        /*
+        /**
          * Zarejestrowany handler obsługi zdarzenia wciśniecia oznaczonego pola
          */
         private onSelectedClickHandler: (field: Field) => void = null;
 
-        /*
+        /**
          * Konstruktor tworzący obiekt pola na planszy
+         * @param field Obiekt modelu pola
+         * @param board Obiekt widoku planszy
          */
         constructor(field: Model.Field, board: Board) {
             this.position = field.clone();
@@ -29,7 +35,7 @@
             }.bind(this);
         }
 
-        /*
+        /**
          * Aktualizacja tekstury pola w zależności od stanu
          */
         private updateTexture() {
@@ -50,7 +56,7 @@
                 this.field.setTexture(texture);
         }
 
-        /*
+        /**
          * Zaznaczenie pola
          */
         public select() {
@@ -58,7 +64,7 @@
             this.updateTexture();
         }
 
-        /*
+        /**
          * Odznaczenie pola
          */
         public unselect() {
@@ -70,30 +76,33 @@
             this.updateTexture();
         }
 
-        /*
+        /**
          * Zmiana interaktywności
+         * @param interactive Czy pole ma reagować na mysz?
          */
 
         public setInteractive(interactive: boolean) {
             this.field.interactive = interactive;
         }
 
-        /*
+        /**
          * Rejestracja handlera zdarzenia wciśnięcia oznaczonego pola
+         * @param handler Funkcja obsługi zdarzenia
          */
         public onSelectedClick(handler: (field: Field) => void) {
             this.onSelectedClickHandler = handler;
         }
 
-        /*
+        /**
          * Pobranie pozycji pola
+         * @return Obiekt modelu pola zawierający jego współrzędne
          */
         public getModelField(): Model.Field {
             return this.position;
         }
     }
 
-    /*
+    /**
      * Enumeracja oznaczająca kolor i stan pola
      */
     enum FieldState {

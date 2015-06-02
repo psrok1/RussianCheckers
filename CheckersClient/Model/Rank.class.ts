@@ -1,12 +1,23 @@
 ﻿module Model {
+    /**
+     * Model rankingu
+     */
     export class Rank {
+        /** Najlepsze czasy */
         private times: number[] = [];
 
+        /**
+         * Aktualizacja rankingu
+         * @param times Najlepsze czasy
+         */
         public updateTimes(times: number[])
         {
             this.times = times.slice();
         }
 
+        /**
+         * Pobiera sformatowaną listę najlepszych czasów
+         */
         public getFormattedTimes(): string[]
         {
             var formattedTimes: string[] = [];

@@ -1,17 +1,25 @@
 ﻿module View {
-    /*
+    /**
      * Klasa reprezentująca widok menu gry
      */
     export class MenuView extends View {
+        /** Przycisk wyboru białych pionków */
         private whiteButton: ColorSelectionButton;
+        /** Przycisk wyboru dowolnych pionków */
         private autoButton: ColorSelectionButton;
+        /** Przycisk wyboru czarnych pionków */
         private blackButton: ColorSelectionButton;
+        /** Czasy rankingu */
         private bestTimes: PIXI.Text[] = [];
 
+        /** Wybrany kolor pionka */
         private selectedColor: SelectedColor = SelectedColor.Auto;
+        /** Handler obsługi zdarzenia rozpoczęcia gry */
         private onStartGameHandler: (selectedColor: SelectedColor) => void = null;
-        // ...
         
+        /**
+         * Konstruktor widoku menu
+         */
         constructor() {
             super();
             this.getStage().interactive = true;
@@ -107,6 +115,11 @@
             this.getStage().addChild(startButton);
         }
 
+        /**
+         * Aktualizacja stanu przycisków po wciśnięciu któregoś.
+         * Przyciski powinny działać jak RadioButton.
+         * Wybrany powinien się zaświecić, reszta zgasnąć.
+         */
         private updateSelection() {
             var buttons: ColorSelectionButton[] =
                 [this.whiteButton, this.blackButton, this.autoButton];
@@ -116,17 +129,26 @@
             buttons[this.selectedColor].select();
         }
 
+        /**
+         * Rejestracja handlera zdarzenia rozpoczęcia gry
+         * @param handler Funkcja obsługi zdarzenia
+         */
         public onStartGame(handler: (selectedColor: SelectedColor) => void) {
             this.onStartGameHandler = handler;
         }
 
+        /**
+         * Metoda aktualizująca wyświetlany ranking
+         */
         public updateRank(formattedTimes: string[]) {
             for (var i = 0; i < 5; i++)
                 this.bestTimes[i].setText(formattedTimes[i]);
         }
 
-        //public update() { }
-
+        /**
+         * Metoda wywoływana przez menedżer widoków przy wstrzymaniu tego widoku
+         * (gdy widok jest przełączany na inny)
+         */
         public pause(): boolean {
             if (!super.pause())
                 return false;
@@ -134,6 +156,7 @@
             return true;
         }
 
+        //public update() { }
         //public resume() {
         //    if (!super.resume())
         //        return false;
@@ -142,18 +165,31 @@
         //}
     }
 
+    /**
+     * Enumeracja wybranego koloru pionka
+     */
     export const enum SelectedColor {
         White,
         Black,
         Auto
     }
 
+    /** 
+     * Przycisk wyboru koloru pionka 
+     */
     class ColorSelectionButton extends PIXI.Graphics {
+        /** Kolor przycisku, który nie został wybrany */
         private static NSELECTED_COLOR = 0x202020;
+        /** Kolor wybranego przycisku */
         private static SELECTED_COLOR = 0x606060;
 
+        /** Handler zdarzenia wciśnięcia przycisku */
         private onSelectHandler: () => void = null;
 
+        /**
+         * Konstruktor przycisku
+         * @param texture Tekstura przycisku (pionek)
+         */
         constructor(texture: PIXI.Texture) {
             super();
             super.beginFill(ColorSelectionButton.NSELECTED_COLOR, 1);
@@ -172,6 +208,9 @@
             super.addChild(sprite);
         }
 
+        /**
+         * Oznaczenie przycisku jako zapalony
+         */
         public select() {
             super.beginFill(ColorSelectionButton.SELECTED_COLOR, 1);
             super.lineStyle(1, 0x404040, 1);
@@ -179,6 +218,9 @@
             super.endFill();
         }
 
+        /**
+         * Oznaczenie przycisku jako zgaszony
+         */
         public unselect() {
             super.beginFill(ColorSelectionButton.NSELECTED_COLOR, 1);
             super.lineStyle(1, 0x404040, 1);
@@ -186,6 +228,10 @@
             super.endFill();
         }
 
+        /** 
+         * Rejestracja handlera zdarzenia wciśnięcia przycisku wyboru
+         * @param handler Funkcja obsługi zdarzenia
+         */
         public onSelect(handler: () => void) {
             this.onSelectHandler = handler;
         }

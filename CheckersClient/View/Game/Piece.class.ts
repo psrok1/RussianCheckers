@@ -1,27 +1,36 @@
 ﻿module View {
-    /*
+    /**
      * Klasa widoku pionka na planszy widoku gry
      * Obserwator pionka w modelu
      */
     export class Piece implements ModelObserver<Model.Piece> {
-        private board: Board;               // Plansza na której leży pionek
-        private sprite: PIXI.Sprite;        // Obiekt widoku pionka
+        /** Plansza na której leży pionek */
+        private board: Board;
+        /** Obiekt widoku pionka */
+        private sprite: PIXI.Sprite;
+        
 
         /*
          * Kopia informacji z modelu, która pozwoli na wychwycenie różnic przy aktualizacji
          */
-        private position: Model.Field;      // Pozycja pionka
-        private color: Model.PieceColor;    // Kolor pionka
-        private isKing: boolean;            // Czy pionek jest damką?
-        private captured: boolean;          // Czy pionek został zbity?
 
-        /*
+        /** Pozycja pionka */
+        private position: Model.Field;
+        /** Kolor pionka */
+        private color: Model.PieceColor;
+        /** Czy pionek jest damką? */
+        private isKing: boolean;
+        /** Czy pionek został zbity? */
+        private captured: boolean;
+
+        /**
          * Handler obsługi zdarzenia wybrania pionka
          */
         private onClickHandler: (piece: Piece) => void = null;
 
-        /*
+        /**
          * Konstruktor tworzący pionek na danej planszy
+         * @param board Plansza, na której leży pionek
          */
         constructor(board: Board) {
             var textureManager = TextureManager.getInstance();
@@ -34,16 +43,19 @@
             }.bind(this);
         }
 
-        /*
+        /**
          * Wyznacza teksturę do użycia dla danego pionka
          */
-
         private getTexture(): PIXI.Texture {
             return TextureManager.getInstance().getTexture(
                 (this.color == Model.PieceColor.White ? "pieceWhite" : "pieceBlack") +
                 (this.isKing ? "King" : ""));
         }
 
+        /**
+         * Przesuwa pionek na wierzch planszy
+         * (informuje renderer, że ten obiekt pionka ma być rysowany jako ostatni)
+         */
         private switchOnTop() {
             var boardSprite = this.board.getSprite();
             boardSprite.setChildIndex(this.sprite, boardSprite.children.length - 1);
@@ -52,6 +64,7 @@
         /*
          * Metoda notify: interfejs komunikacji z modelem.
          * Model pionka wywołuje tą metodę, gdy zmieni swój stan.
+         * @param sender Obiekt modelu pionka aktualizujący stan widoku
          */
         public notify(sender: Model.Piece) {
             var view: GameView = <GameView>ViewManager.getInstance().getView("game");
@@ -79,8 +92,9 @@
             }
         }
 
-        /*
+        /**
          * Wyznacza współrzędne pola na widoku planszy
+         * @param field Obiekt modelu pola, współrzędne
          */
         private fieldToPosition(field: Model.Field): PIXI.Point {
             return new PIXI.Point(
@@ -88,8 +102,10 @@
                 field.y * 48 - 192);
         }
 
-        /*
+        /**
          * Sprzężenie obserwatora pionka z nowym modelem dla nowej gry
+         * @param piece Obiekt modelu pionka, do którego widok zostanie podłączony
+         * @param localPieces Kolor pionków gracza
          */
         public initialize(piece: Model.Piece, localPieces: Model.PieceColor) {
             // Aktualizacja kopii stanu
@@ -107,22 +123,26 @@
             piece.bindObserver(this);
         }
 
-        /*
+        /**
          * Zmiana interaktywności
+         * @param interactive Czy pionek ma reagować na mysz?
          */
         public setInteractive(interactive: boolean) {
             this.sprite.interactive = interactive;
         }
 
-        /*
+        /**
          * Rejestracja handlera zdarzenia wybrania pionka
+         * @param handler Funkcja obsługi zdarzenia wybrania pionka
          */
         public onClick(handler: (piece: Piece) => void) {
             this.onClickHandler = handler;
         }
 
-        /*
+        /**
          * Pobiera odpowiadający obiekt modelu
+         * @param model Obiekt modelu gry
+         * @return Powiązany obiekt modelu pionka
          */
         public getPieceModel(model: Model.GameModel): Model.Piece {
             return model.getBoard().getPiece(this.position);

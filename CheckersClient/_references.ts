@@ -1,4 +1,9 @@
-﻿/// <reference path="Pixi/pixi.d.ts" /> 
+﻿/**
+ * Plik informujący kompilator o zalecanej kolejności budowania plików źródłowych
+ * przy kompilacji do pliku JavaScript (app.js)
+ */
+
+/// <reference path="Pixi/pixi.d.ts" /> 
 /// <reference path="Model/Piece.class.ts" />
 /// <reference path="Model/King.class.ts" />  
 /// <reference path="Model/Field.class.ts" />

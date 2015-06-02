@@ -1,14 +1,20 @@
 ﻿module View {
-    /*
+    /**
      * Klasa obiektu planszy widoku gry
      */
     export class Board {
-        private view:   GameView;       // widok na którym znajduje się plansza
-        private board:  PIXI.Sprite;    // obiekt widoku planszy
-        private fields: Field[];        // pola planszy
-        private pieces: Piece[];        // pionki na planszy
+        /** Widok na którym znajduje się plansza */
+        private view: GameView; 
+        /** Obiekt widoku planszy */
+        private board: PIXI.Sprite;    
+        /** Pola planszy */
+        private fields: Field[];
+        /** Pionki na planszy */
+        private pieces: Piece[]; 
+        
         /*
          * Konstruuje planszę i obiekty planszy
+         * @param view Widok gry (rodzic)
          */
         constructor(view: GameView) {   
             // Ustawia widok
@@ -32,10 +38,12 @@
                 this.pieces.push(new Piece(this));
         }
 
-        /*
+        /**
          * Ustawia pionki na startowych pozycjach
          * Obraca planszę do neutralnej pozycji
          * Rejestruje w widoku przejście obracające planszę w stronę gracza
+         * @param boardModel Model planszy
+         * @param localPieces Kolor pionków gracza
          */
         public initialize(boardModel: Model.Board, localPieces: Model.PieceColor) {
             // Inicjalizuj czarne pionki
@@ -65,23 +73,25 @@
                         : RotateTransitionDirection.LEFT)));
         }
 
-        /*
-         * Ustawia handler dla wszystkich pionków
+        /**
+         * Ustawia handler zdarzenia kliknięcia dla wszystkich pionków
+         * @param handler Funkcja obsługi zdarzenia
          */
         public onPieceClick(handler: (piece: Piece) => void) {
             for (var e in this.pieces)
                 this.pieces[e].onClick(handler);
         }
 
-        /*
-         * Ustawia handler dla wszystkich pól
+        /**
+         * Ustawia handler zdarzenia kliknięcia dla wszystkich pól
+         * @param handler Funkcja obsługi zdarzenia
          */
         public onSelectedFieldClick(handler: (field: Field) => void) {
             for (var e in this.fields)
                 this.fields[e].onSelectedClick(handler);   
         }
 
-        /*
+        /**
          * Ustawia wszystkie pola jako nieoznaczone
          */
         public unselectAllFields() {
@@ -89,8 +99,9 @@
                 this.fields[e].unselect();
         }
         
-        /*
+        /**
          * Zmienia interaktywność
+         * @param interactive Czy plansza ma reagować na mysz?
          */
 
         public setInteractive(interactive: boolean) {
@@ -100,15 +111,18 @@
                 this.fields[e].setInteractive(interactive);
         }
 
-        /*
+        /**
          * Pobiera obiekt pola widoku na podstawie obiektu pola modelu
+         * @param field Obiekt pola modelu
+         * @return Obiekt pola widoku
          */
         public getField(field: Model.Field): Field {
             return this.fields[field.y * 8 + field.x];
         }
 
-        /*
+        /**
          * Pobiera obiekt widoku odpowiadający planszy
+         * @return Element widoku dla planszy
          */
         public getSprite(): PIXI.Sprite {
             return this.board;

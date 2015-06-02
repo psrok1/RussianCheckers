@@ -1,35 +1,49 @@
 ﻿module View {
-    /*
+    /**
      * Generyczny interfejs obserwatora modelu
      */
     export interface ModelObserver<T> {
         notify(sender: T);
     }
 
-    /*
+    /**
      * Klasa reprezentująca widok gry
      */
     export class GameView extends View {
         /*
          * Stan przejść synchronicznych
          */
-        private transitionQueue: Transition[] = [];         // kolejka przejść synchronicznych
-        private onTransitionEndHandler: () => void = null;  // handler zdarzenia zakończenia przejść
-        private currentTransition: Transition = null;       // aktualnie wykonywane przejście
-        private transitionPlayed: boolean = false;          // czy przejścia są aktualnie wykonywane?
+
+        /** Kolejka przejść synchronicznych */
+        private transitionQueue: Transition[] = [];
+        /** Handler zdarzenia zakończenia przejść */
+        private onTransitionEndHandler: () => void = null;
+        /** Aktualnie wykonywane przejście */
+        private currentTransition: Transition = null;
+        /** Czy przejścia są aktualnie wykonywane? */
+        private transitionPlayed: boolean = false;
+        
         /*
          * Obiekty widoku
          */
+
+        /** Obiekt planszy */
         private board: Board;
+        /** Obiekt tła */
         private background: PIXI.Sprite;
+        /** Pole tekstowe pokazujące stan timera gry */
         private timer: PIXI.Text;
+        /** Strzałka zapalająca się, gdy kolej białych pionków */
         private leftTurn: PIXI.Sprite;
+        /** Strzałka zapalająca się, gdy kolej czarnych pionków */
         private rightTurn: PIXI.Sprite;
         
+        /** Panel informujący o końcu gry */
         private gameEndMessage: GameEndMessage;
+        /** Filtr szarości */
         private grayFilter: PIXI.GrayFilter;
 
-        /*
+        /**
          * Konstruktor widoku gry
          */
         constructor() {
@@ -52,7 +66,7 @@
             this.background.filters = [this.grayFilter];
         }
 
-        /*
+        /**
          * Konstruktor panelu informacji o stanie gry
          */
         private drawGameInformation() {
@@ -97,8 +111,9 @@
             this.getStage().addChild(blackTurn);
         }
 
-        /*
+        /**
          * Aktualizuje wskazanie czyja jest teraz kolej
+         * @param whiteTurn Powinien być ustawiony na true, jeśli kolej białych pionków
          */
         public updateTurn(whiteTurn: boolean) {
             this.leftTurn.setTexture(
@@ -109,44 +124,58 @@
                     !whiteTurn ? "turnBlack" : "turnBlackDisabled"));
         }
 
-        /*
+        /**
          * Aktualizuje timer
+         * @param timer Stan timera
          */
         public updateTimer(timer: string) {
             this.timer.setText(timer);
         }
 
+        /**
+         * Ustawia panel końca gry
+         * Ustawia komunikat kto wygrał i czas gry
+         * Informuje renderer, że panel powinien być rysowany na wierzchu
+         * @param winClient True, jeśli wygrał klient
+         * @param time Czas gry
+         */
         public setEndGameMessage(winClient: boolean, time: string) {
             this.gameEndMessage.setMessage(winClient, time);
             this.getStage().setChildIndex(this.gameEndMessage, this.getStage().children.length - 1);
         }
 
+        /**
+         * Wyświetla panel końca gry
+         */
         public showEndGameMessage() {
             this.gameEndMessage.show();
         }
 
+        /**
+         * Modyfikuje wyszarzenie widoku
+         * @param Poziom wyszarzenia widoku
+         */
         public setGrayness(grayness: number) {
             this.grayFilter.gray = grayness;
         }
 
-        /*
+        /**
          * Metoda zwracająca obiekt widoku reprezentujący planszę gry
          */
-
         public getBoard(): Board {
             return this.board;
         }
 
-        /*
+        /**
          * Metoda zmieniająca interaktywność widoku
+         * @param interactive Czy widok powinien reagować na zdarzenia myszy?
          */
-
         public setInteractive(interactive: boolean) {
             this.stage.interactive = interactive;
             this.board.setInteractive(interactive);
         }
 
-        /*
+        /**
          * Metoda wywoływana przy rysowaniu kolejnej klatki
          */
         public update() {
@@ -154,9 +183,7 @@
                 this.currentTransition.update();
         }
 
-        /*
-         * Metoda wywoływana przy dezaktywacji tego widoku
-         */
+        // Pozostawione na ew. przyszłość
         //public pause(): boolean {
         //    if (!super.pause())
         //        return false;
@@ -164,8 +191,8 @@
         //    return true;
         //}
 
-        /*
-         * Metoda wywoływana przy aktywacji tego widoku
+        /**
+         * Metoda wywoływana przez menedżer widoków przy aktywacji tego widoku
          */
         public resume() {
             if (!super.resume())
@@ -176,14 +203,15 @@
             return true;
         }
 
-        /*
+        /**
          * Rejestracja przejścia synchronicznego
+         * @param transition Przejście synchroniczne do zrealizowania
          */
         public addTransition(transition: Transition) {
             this.transitionQueue.push(transition);
         }
 
-        /*
+        /**
          * Wykonanie następnego w kolejce przejścia
          */
         public nextTransition() {
@@ -201,7 +229,7 @@
             }
         }
 
-        /*
+        /**
          * Uruchomienie kolejki przejść
          */
         public playTransition() {
@@ -211,24 +239,38 @@
             }
         }
 
-        /*
+        /**
          * Rejestracja handlera, który wykona się, gdy kolejka przejść stanie się pusta
+         * @param handler Funkcja obsługi zdarzenia
          */
         public onTransitionEnd(handler: () => void) {
             this.onTransitionEndHandler = handler;
         }
 
+        /**
+         * Rejestracja handlera, który wykona się, gdy zostanie potwierdzone zakończenie gry
+         * przez użytkownika
+         * @param handler Funkcja obsługi zdarzenia
+         */
         public onGameEnd(handler: () => void) {
             this.gameEndMessage.onClose(handler);
         }
     }
 
+    /**
+     * Panel informujący o zakończeniu gry
+     */
     class GameEndMessage extends PIXI.Graphics {
+        /** Obiekt treści wiadomości o zakończeniu */
         private endGameMessage: PIXI.Text;
+        /** Przycisk przejścia do menu */
         private endGameButton: PIXI.Text;
-
+        /** Zdarzenie wyzwalane przy wciśnięciu "Przejdź do menu"*/
         private onCloseHandler: () => void = null;
 
+        /**
+         * Konstruktor panelu
+         */
         constructor() {
             super();
             super.beginFill(0x202020, 0.8);
@@ -268,21 +310,36 @@
             super.addChild(this.endGameButton);
         }
 
+        /**
+         * Modyfikacja komunikatu o zakończeniu gry
+         * @param winClient Czy informować o zwycięstwie czy przegranej?
+         * @param time Czas gry
+         */
         public setMessage(winClient: boolean, time: string) {
             this.endGameMessage.setText(winClient
                 ? "Wygrałeś!\nTwój czas to " + time
                 : "Przegrałeś...\nTwój czas to " + time);
         }
 
+        /**
+         * Rejestracja zdarzenia kliknięcia na "Przejdź do menu"
+         * @param handler Funkcja obsługi zdarzenia
+         */
         public onClose(handler: () => void) {
             this.onCloseHandler = handler;
         }
 
+        /**
+         * Wyświetlenie panelu
+         */
         public show() {
             this.endGameButton.interactive = true;
             this.visible = true;
         }
 
+        /**
+         * Ukrycie panelu
+         */
         public hide() {
             this.endGameButton.interactive = false;
             this.visible = false;

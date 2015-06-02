@@ -1,5 +1,5 @@
-﻿/*
- * Coś jakby main()
+﻿/**
+ * Punkt wejścia aplikacji
  * Rejestruje widoki i uruchamia całą machinę
  */
 window.onload = () => { 

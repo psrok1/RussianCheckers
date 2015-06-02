@@ -1,25 +1,37 @@
 ﻿module Controller {
-    /*
+    /**
      * Klasa kontrolera gry
      */
     export class Game {
+        /** Główny kontroler aplikacji (rodzic) */
         private app: App;
+        /** Klient WebSocket */
         private webClient: WebClient;
+        /** Widok gry */
         private view: View.GameView;
         
         /*
          * Zmienne powiązane ze stanem gry
          */
+
+        /** Model gry */
         private model: Model.GameModel = null;
+        /** Wybrany pionek */
         private choosedPiece: View.Piece = null;
+        /** Pionek na którym widok jest zablokowany (wykonuje wielokrotne bicie) */
         private lockedOnPiece: View.Piece = null;
+        /** Bufor dla ruchów otrzymanych od serwera */
         private serverMoveCache: Model.Field[] = null;
+        /** Opóźnienie ruchu serwera */
         private serverMoveTimer: number = null;
+        /** Timer gry */
         private gameTimer: number = null;
 
-        /*
+        /**
          * Konstruktor kontrolera.
-         * Powiązuje kontroler z widokiem gry
+         * Wiąże kontroler z widokiem gry
+         * @param view Widok gry
+         * @param app Główny kontroler aplikacji
          */
         constructor(view: View.GameView, app: App) {
             this.view = view;
@@ -35,8 +47,9 @@
             this.webClient = this.app.getClientInstance();
         }
 
-        /*
+        /**
          * Handler odpowiedzi serwera na żądanie stworzenia nowej gry
+         * @param localPieces Wybrane przez serwer pionki dla naszego gracza
          */
         private onServerHello(localPieces: Model.PieceColor) {
             // Inicjalizuj grę
@@ -59,18 +72,21 @@
             this.view.playTransition();
         }
 
-        /*
+        /**
          * Handler ruchu serwera
+         * @param from Współrzędne pionka, który wykonuje ruch
+         * @param to Seria współrzędnych będących ścieżką tego ruchu
          */
-
         private onServerMove(from: Model.Field, to: Model.Field[]) {
             this.serverMoveCache = [];
             this.serverMoveCache.push(from);
             this.serverMoveCache = this.serverMoveCache.concat(to);
         }
 
-        /*
+        /**
          * Handler zakończenia gry
+         * @param time Czas trwania gry (wg. serwera)
+         * @param win Ustawione na true, jeśli wygrał gracz
          */
         private onServerEnd(time: number, win: boolean) {
             // Usuń timer oczekiwania
@@ -89,7 +105,7 @@
             this.view.playTransition();
         }
 
-        /*
+        /**
          * Metoda, która wykonuje ruchy otrzymane od serwera (jeśli istnieją)
          * a następnie przełącza kolejkę.
          * Wykonywana cyklicznie przez timer oczekujący na ruch od serwera.
@@ -117,7 +133,7 @@
             this.serverMoveTimer = null;
         }
 
-        /*
+        /**
          * Dostosowuje zachowania widoku i kontrolera po uzgodnieniu z modelem
          * czy teraz czas na ruch gracza czy serwera
          */
@@ -134,7 +150,7 @@
             }
         }
 
-        /*
+        /**
          * Uruchamia timer gry
          */
         private startTimer() {
@@ -147,7 +163,7 @@
             }.bind(this), 1000)
         }
 
-        /*
+        /**
          * Zatrzymuje timer gry
          */
         private stopTimer() {
@@ -156,8 +172,9 @@
             this.gameTimer = null;
         }
 
-        /*
+        /**
          * Wyzwalacz stworzenia nowej gry przez kontroler
+         * @param desiredColor Żądany przez gracza kolor
          */
         public startNewGame(desiredColor: Model.PieceColor) {
             View.MessageView.showMessage("Łączenie z serwerem...");
@@ -182,6 +199,7 @@
         
         /*
          * Zdarzenie wywoływane po wybraniu pionka
+         * @param piece Wybrany pionek
          */
         private onPieceClick(piece: View.Piece) {
             // Jeśli wielokrotne bicie (kontroler zablokowany na pionku)
@@ -214,6 +232,7 @@
 
         /*
          * Zdarzenie wywoływane po wybraniu pola
+         * @field Wybrane pole
          */
         private onSelectedFieldClick(field: View.Field) {
             // Pobierz model dla wybranego pionka

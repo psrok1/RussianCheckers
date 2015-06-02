@@ -1,30 +1,43 @@
 ﻿module Model {
+    /**
+     * Model pionka
+     */
     export class Piece {
+        /** Kolor pionka */
         protected color: PieceColor;
+        /** Plansza na której leży pionek */
         protected board: Board;
+        /** Pole na którym leży pionek */
         protected position: Field;
     
-        // Flaga informująca, że pionek został zbity
+        /** Flaga informująca, że pionek został zbity */
         protected captured: boolean = false;
     
-        // Lista obserwatorów obiektu
+        /** Lista obserwatorów obiektu */
         protected observers: View.ModelObserver<Piece>[] = [];
     
-        /*
+        /**
          * Bufor ruchów niezrealizowanych po stronie serwera
          * Kontroler na podstawie tego bufora, aktualnej pozycji i wiedzy
          * jaki pionek wykonywal ruch: odtworzy ten ruch i wysle na serwer
          */
         protected positionCache: Field[] = [];
 
+        /**
+         * Konstruktor pionka
+         */
         constructor(color: PieceColor, board: Board, position: Field) {
             this.color = color;
             this.board = board;
             this.position = position;
         }
 
+        /**
+         * Metoda zwracająca tablicę pól, na które może przesunąc się damka
+         * @param onlyCaptures True, gdy żądamy samych bić
+         */
         public getPossibilities(onlyCaptures: boolean): Field[]{ 
-            // zwraca tablice dostepnych ruchow dla danego pionka, onlyCaptures == true gdy zadamy samych bic
+            // 
             var poss = [];
             var x = [-1, -1, 1, 1];
             var y = [-1, 1, -1, 1];
@@ -44,8 +57,10 @@
             return poss;
         }
 
+        /**
+         * Usunięcie pionka z danego pola (zbicie)
+         */
         public capture(capturedField: Field) { 
-            // usuniecie pionka z danego pola (zbicie)
             var piece = this.board.getPiece(capturedField);
             this.board.setPiece(capturedField, null);
             this.board.pieceCapture(piece.color);
@@ -54,6 +69,9 @@
             piece.update();
         }
 
+        /**
+         * Przesunięcie pionka na zadane pole
+         */
         public move(to: Field): boolean {
             var from = this.position;
             var temp;
@@ -86,50 +104,83 @@
             return false; // nie ma nastepnego bicia w tym ruchu
         }
 
+        /**
+         * Pobranie listy ruchów z bufora do przesłania na serwer
+         * i wyczyszczenie bufora
+         */
         public popFromCache(): Field[] {
             var cache: Field[] = this.positionCache;
             this.positionCache = [];
             return cache;
         }
 
+        /**
+         * Pobranie koloru pionka
+         */
         public getColor(): PieceColor {
             return this.color;
         }
 
+        /**
+         * Pobranie pozycji pionka (pola, na którym leży)
+         */
         public getPosition(): Field {
             return this.position;
         }
 
+        /**
+         * Pobranie planszy, na której leży pionek
+         */
         public getBoard(): Board {
             return this.board;
         }
 
+        /**
+         * Sprawdzenie, czy pionek został zbity
+         */
         public isCaptured(): boolean {
             return this.captured;
         }
 
+        /**
+         * Zwraca kopię listy obserwatorów
+         */
         public sliceObservers() {
             var obs = [];
             obs = this.observers.slice();
             return obs;
         }
+
+        /**
+         * Zwraca kopię bufora wykonanych ruchów
+         */
         public sliceCache() {
             var obs = [];
             obs = this.positionCache.slice();
             return obs;
         }
+
+        /**
+         * Dołącza obserwatora do modelu
+         */
         public bindObserver(observer: View.ModelObserver<Piece>)
         {
             this.observers.push(observer);
         }
 
-       public update() {
-           for (var o in this.observers)
-               this.observers[o].notify(this);
-       }
+        /**
+         * Wykonuje aktualizację obserwatorów
+         */
+        public update() {
+            for (var o in this.observers)
+                this.observers[o].notify(this);
+        }
 
+        /**
+         * Zwraca, czy w danym kierunku można wykonać ruch (i na jakie pole)
+         */
        private pieceMove(from: Field, valX: number, valY: number, color: PieceColor): Field { 
-           // zwraca czy w danym kierunku mozna wykonac ruch (i na jakie pole)
+           // 
            if (color === PieceColor.Black && valY < 0) return null;
            if (color === PieceColor.White && valY > 0) return null;
            var temp = new Field(from.x + valX, from.y + valY);
@@ -137,8 +188,10 @@
            return null;
        }
 
+        /**
+         * Zwraca, czy w danym kierunku można wykonać bicie (i na jakie pole)
+         */
        private pieceJump(from: Field, valX: number, valY: number, color: PieceColor): Field { 
-           // zwraca czy w danym kierunku mozna wykonac bicie (i na jakie pole)
            var temp = new Field(from.x + valX, from.y + valY);
            var piece = this.board.getPiece(temp);
            if (piece !== undefined && piece !== null && piece.color !== color) {
@@ -148,8 +201,10 @@
            return null;
        }
 
+        /**
+         * Zamiana piona na damke, ustalenie czy bije dalej
+         */
        private kingChange(jumped: boolean) {
-           //zamiana piona na damke, ustalenie czy bije dalej
            var x = [-1, -1, 1, 1];
            var y = [-1, 1, -1, 1];
            var king = new King(this);
@@ -163,6 +218,9 @@
        }
     }
 
+    /**
+     * Enumeracja koloru pionka
+     */
     export enum PieceColor {
         Black, White
     } 

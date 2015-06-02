@@ -1,13 +1,23 @@
 ﻿module Model {
+    /**
+     * Model planszy
+     */
     export class Board {
         /*
-    * (x,y) -> Piece
-    * pieces[y*8+x] = (null | Piece)
-    */
+         * (x,y) -> Piece
+         * pieces[y*8+x] = (null | Piece)
+         */
+        
+        /** Pionki na planszy */
         private pieces: Piece[];
+        /** Liczba pozostałych białych pionków */
         private whiteRemaining: number;
+        /** Liczba pozostałych czarnych pionków */
         private blackRemaining: number;
 
+        /**
+         * Konstruktor modelu planszy
+         */
         constructor() {
             this.pieces = [];
             this.whiteRemaining = 12;
@@ -45,23 +55,40 @@
              */
         }
 
-
-
+        /**
+         * Metoda pobierająca pionek z zadanego pola
+         * @param from Pole, z którego pobieramy pionek
+         * @return Model pionka
+         */
         public getPiece(from: Field): Piece {
             if (from.x > 7 || from.y > 7 || from.x < 0 || from.y < 0) return undefined;
             return this.pieces[from.y * 8 + from.x];
             return null;
         }
 
+        /**
+         * Metoda ustawiająca pionek na zadanym polu
+         * @param position Pole, na którym ustawiamy pionek
+         * @param piece Pionek do ustawienia
+         */
         public setPiece(position: Field, piece: Piece) {
             this.pieces[position.y * 8 + position.x] = piece;
         }
 
+        /**
+         * Metoda wyzwalana przy przechwyceniu pionka o zadanym kolorze
+         * @param color Kolor pionka
+         */
         public pieceCapture(color: PieceColor) {
             if (color === PieceColor.Black) this.blackRemaining--;
             else this.whiteRemaining--;
         }
 
+        /**
+         * Metoda zwracająca, czy pionki o zadanym kolorze mają jakiekolwiek dostępne bicia
+         * @param pieceColor Kolor pionka
+         * @return Zwraca true, gdy są dostępne bicia
+         */
         public anyCaptures(pieceColor: PieceColor): boolean {
 
             for (var i = 0; i < 8; ++i) {
