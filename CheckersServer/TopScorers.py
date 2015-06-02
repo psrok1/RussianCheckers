@@ -24,35 +24,38 @@ class TopScorers(object):
     """Zapisuje obecny stan listy, nadpisujac plik"""
     def update(self):
 	target = open('TopScorers', 'w')
-	for s in self.scorers:
-	    target.write(str(s))
+	for i in range(0,5):
+	    target.write(str(self.scorers[0][i]))
 	    target.write(" ")
         target.close()
     
     """Tworzy pakiet gotowy do wyslania na serwer"""
     def sendingList(self):
-	#message = '{"message": "rank", "times": ['+ self.scorers[0] + ', ' + self.scorers[1] + ', ' + self.scorers[2] + ', ' + self.scorers[3] + ', ' + self.scorers[4] + ']}'
-	message = '{"message": "rank", "times": ' + str(self.scorers) + '}'
+	message = '{"message": "rank", "times": ['+ str(self.scorers[0][0]) + ', ' + str(self.scorers[0][1]) + ', ' + str(self.scorers[0][2]) + ', ' + str(self.scorers[0][3]) + ', ' + str(self.scorers[0][4]) + ']}'
+	
         return message
     
     """Sprawdza czy podany czas jest lepszy niz najgorszy wynik na liscie"""
     def isGoodEnough(self, time):
-	return time < self.scorers[4] 
+	return time < self.scorers[0][4] 
     
     """Dodaje wynik oraz dane gracza na odpowiednie miejsce listy"""
     def addNewTopScorer(self, time):
 	for i in range(0,5):
-	    if self.scorers[i] > time:
-	        j = i+1
-	        while j < 5:
-		    self.scorers[j] = self.scorers[j-1]
-	            j = j + 1
-	        self.scorers[i] = time
-
+	    if self.scorers[0][i] > time:
+	        j = 4
+	        while j > i:
+		    self.scorers[0][j] = self.scorers[0][j-1]
+	            j = j - 1
+	        self.scorers[0][i] = time
+		return
 
 if __name__ == "__main__":
     top = TopScorers()
     top.read()
-    print top.sendingList()
+    if top.isGoodEnough(150):
+	top.addNewTopScorer(150);
+    
+    print str(top.sendingList())
     top.update()	
 
