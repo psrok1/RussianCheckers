@@ -146,7 +146,7 @@
             else {
                 this.view.updateTurn(this.model.getLocalPieces() != Model.PieceColor.White);
                 this.view.setInteractive(false);
-                this.serverMoveTimer = setInterval(this.doServerMove.bind(this));
+                this.serverMoveTimer = setInterval(this.doServerMove.bind(this), 1000);
             }
         }
 
