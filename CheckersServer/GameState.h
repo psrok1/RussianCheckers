@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include <vector>
+//#include <boost/python.hpp>
 using namespace std;
 /*
 void initModule()
@@ -80,6 +82,8 @@ private:
 	bool possibleRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
 	bool isRoyalBeatPossible(int beatingX, int beatingY, int beatenX, int beatenY, int iteri, int iterj);
 	GameState& beat(int x, int y);
+	
+	void executeMove(int x1, int y1, int x2, int y2);
 public:
 
 	/* konstruktor tworzacy nowa plansze gry
@@ -91,16 +95,11 @@ public:
 	*/
 	//GameState(GameState&, int, int, int, int);
 
-
-
+	void playerMove(int, int, int, int);
+	
 	//wykonanie ruchu przez komputer, wywoluje evaluate
-	char* makeMove()
-	{
-		moves m;
-		evaluate(10, m);
-		char c[]="hello";
-		return c;
-	}
+	std::string makeMove();
+
 	//aktualizuje plansze po wykonaniu ruchu przez gracza
 	void updateState(std::string stateChange)
 	{
@@ -145,7 +144,7 @@ GameState::GameState(char cc, char pc) : playerColor(pc), computerColor(cc), whi
 {
 	for (int i = 0; i < 8; i++)// <-- sprawdzenie pionków przeciwnika które nie są na krawędziach planszy (mogą byc bite)
 	{
-		for (int j = ((i + 1) % 2); j < 7; j += 2)
+		for (int j = ((i + 1) % 2); j < 8; j += 2)
 		{
 			if (i < 3)
 			{
@@ -169,6 +168,48 @@ int GameState::stateValue()
 	return (playerColor == 'w') ? evaluateBoard() : -(evaluateBoard());
 }
 
+void GameState::executeMove(int x1, int y1, int x2, int y2)
+{
+	field[x2][y2] = field[x1][y1];
+	int i = (x1 < x2) ? 1: -1;
+	int j = (y1 < y2) ? 1: -1;
+	for(; x1 != x2 && y1 != y2; x1+=i, y1+=j)
+	{
+		field[x1][y1].color = 0;
+		field[x1][y1].king = false;
+	}
+}
+
+std::string GameState::makeMove()
+{
+	char c;
+	string s;
+	stringstream ss;
+	moves m;
+	evaluate(10, m);
+	for(int i = m.size() - 1 ; i - 3 >= 0; i-=2)
+	{
+		executeMove(m[i-1], m[i], m[i-3], m[i-2]);
+	}
+	cout << endl;
+	printAll();
+	for(int i = m.size() - 1 ; i >=0 ; i-=2)
+	{
+		c = 'A' + (char)m[i];
+		ss << c;
+		c = '8' - (char)m[i-1];
+		ss << c;
+	}
+	ss >> s;
+	cout << s;
+	return s;
+}
+
+void GameState:: playerMove(int x1, int y1, int x2, int y2)
+{
+	executeMove(x1,y1,x2,y2);
+}
+
 int GameState::evaluate(int depth, moves& m)
 {
 	
@@ -184,11 +225,14 @@ int GameState::evaluate(int depth, moves& m)
 // wypisuje cala plansze w razie potrzeby
 void GameState::printAll()
 {
+	cout << "  0  1  2  3  4  5  6  7" << endl;
 	for (int i = 0; i < 8; i++)
 	{
 		for (int j = 0; j < 8; j++)
 		{
-			cout << ((field[i][j].color == 0) ? ' ' : field[i][j].color) << ((j == 7) ? '\n' : ' ');
+			
+			if(j == 0) cout << i << '|';
+			cout << ((field[i][j].color == 0) ? ' ' : field[i][j].color) << ((j == 7) ? "|\n" : "| ");
 		}
 	}
 }
@@ -623,7 +667,7 @@ void GameState::commonSideMoves(int depth, int& alpha, int& beta, int x, int y, 
 		{
 			temp = alpha;
 			alpha = max(alpha, this->move(x, y, moving_value, side_moving_value, moving_color).alfabeta(depth - 1, alpha, beta, !max_min, next_color, false, m));
-			if (recordon) { if (temp < alpha) { m.push_back(x + moving_value); m.push_back(y + side_moving_value); m.push_back(x); m.push_back(y); temp = alpha; } }
+			if (recordon) { if (temp < alpha) { m.clear(); m.push_back(x + moving_value); m.push_back(y + side_moving_value); m.push_back(x); m.push_back(y); temp = alpha; } }
 		}
 		else
 		{
