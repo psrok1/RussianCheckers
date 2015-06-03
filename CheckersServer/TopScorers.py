@@ -16,7 +16,7 @@ class TopScorers(object):
     def read(self):
 	target = open('TopScorers')
 	self.scorers = []
-	self.scorers.append([int(x) for x in target.readline().split()])
+	self.scorers.append([float(x) for x in target.readline().split()])
 	target.close()        
 
 
@@ -49,7 +49,7 @@ class TopScorers(object):
 	            j = j - 1
 	        self.scorers[0][i] = time
 		return
-
+"""
 if __name__ == "__main__":
     top = TopScorers()
     top.read()
@@ -57,5 +57,5 @@ if __name__ == "__main__":
 	top.addNewTopScorer(150);
     
     print str(top.sendingList())
-    top.update()	
+    top.update()""" 	
 

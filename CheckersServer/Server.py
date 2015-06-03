@@ -2,15 +2,17 @@ import tornado.ioloop
 import tornado.web 
 import tornado.websocket
 import json
-#import Game
+import GameState
 #import Checker
-#import TopScorers
+import TopScorers
+import time
 
 """Klasa dziedziczaca po WebSocketHandler, odpowiada ze komunikacje serwera z przegladarka"""    
 class WSHandler(tornado.websocket.WebSocketHandler):
     
     ''' wykonuje sie po otwarciu polaczenia z serwerem'''
     def open(self):
+	self.tops = TopScorers.TopScorers()
         print 'new connection'
     
     ''' odbiera wiadomosc tekstowa wyslana do serwera'''  
@@ -33,31 +35,87 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     #def get(self):
     #   pass
         #self.render("zrodlostrony.html") #.js tez powinno pociagnac
+
+
+
+
+
     def interpret(self, dict):
 	if dict['message'] == 'rank':
-	    # wez dane z pliku i wyslij :v
-	    message = '{"message": "rank", "times": [100, 200, 300, 400, 500]}'
-	    self.write_message(message)	
+	    self.tops.read()
+	    self.write_message(self.tops.sendingList())	
 	else: 
-		if dict['message'] == 'hello':	
-		    self.hello(dict["pieces"])
-		else: 
-		    if dict['message'] == 'move':
-	    		self.move(dict['moves'])
+	    if dict['message'] == 'hello':	
+	        self.hello(dict["pieces"])
+	    else: 
+	        if dict['message'] == 'move':
+	    	    self.move(dict['moves'])
+		else:
+	  	    if dict['message'] == 'ready':			
+			self.ready()
     
+    
+
     def hello(self,pieces):
 	if pieces == 'auto' or pieces == 'white':
+	    self.game = GameState.GameState('b', 'w')
 	    message = '{"message": "hello", "pieces": "white"}'
 	    self.write_message(message)
 	if pieces == 'black':
+	    self.game = GameState.GameState('w', 'b')	    
 	    message = '{"message": "hello", "pieces": "black"}'
 	    self.write_message(message)
 
+
+    def ready(self):
+	self.gameTime = time.clock()
+	if self.game.getPlayerColor() == 'b':
+	    s = str()
+	    s += '{"message": "move", "moves": '
+	    s += self.game.makeMove()
+	    s += '}'
+	    self.write_message(s)
+
+
+
+
     def move(self,moves):
-	message = {"message": "move", "moves": ["A2", "B3", "C4"]}
-	self.write_message(message)
-	message1 = {"message": "end", "time": 68, "clientWin": "true"}
-	self.write_message(message1)	
+	s = str()
+	for m in moves:
+	    s += str(m)
+	print s
+	self.game.insertPlayerData(s)
+	if self.game.playerWin():
+	    self.gameTime = time.clock() - self.gameTime
+	    message = {"message": "end", "time": self.gameTime, "clientWin": "true"}
+	    self.write_message(message)
+	    if tops.isGoodEnough():
+		tops.addNewTopScorer()
+		tops.update()
+	else:
+	    res = str()
+	    res += '{"message": "move", "moves": '
+	    res += self.game.makeMove()
+	    res += '}'
+	    self.write_message(res)
+	    if self.game.playerLoss():
+		self.gameTime = time.clock() - self.gameTime
+		message = {"message": "end", "time": self.gameTime, "clientWin": "false"}
+		self.write_message(message)
+
+
+
+	
+	#message = {"message": "move", "moves": ["A2", "B3", "C4"]}
+	#self.write_message(message)
+	#message1 = {"message": "end", "time": 68, "clientWin": "true"}
+	#self.write_message(message1)
+
+
+
+
+
+	
 	
 if __name__ == "__main__":
     #game = Game.Game()

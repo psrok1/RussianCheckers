@@ -5,11 +5,11 @@
 #include <vector>
 //#include <boost/python.hpp>
 using namespace std;
-/*
+
 void initModule()
 {
 std::cout << "Modul C++ boost::python zaimportowany" << std::endl;
-}*/
+}
 /*Klasa reprezentujaca pionek na planszy
 * zawiera w sobie informacje o kolorze pionka oraz czy jest on damka.
 */
@@ -59,56 +59,77 @@ private:
 	//Parametr depth - jesli jest rozny od zera przegladamy mozliwe stany jesli jest rowny 0 zliczamy punkty.
 
 	typedef vector < int > moves;
+	
+	
 	void printAll();
-	int evaluate(int depth, moves& m);
+
 	int stateValue();
 	int beaten(bool beat[8][8]);
 	int evalBeaten(bool beat[8][8]);
 	int evaluateBoard();
+	
+	
+	void executeMove(int x1, int y1, int x2, int y2);
+	void playerMove(int, int, int, int);
+	
+	
 	int alfabeta(int depth, int alpha, int beta, bool max_min, char moving_color, bool recordon, moves& m);
-	//int makePossibleMoves(GameState*, int, int, char);
-	bool isBeatPossible(int i, int j, int rj, int ri, char color);
-	GameState move(int x, int y, int i, int j, char moving_color);
+	int evaluate(int depth, moves& m);
+	
+	
 	void commonCenterMoves(int depth, int& alfa, int& beta, int x, int y, int moving_value, bool max_min, char moving_color, bool recordon, moves& m);
 	void commonSideMoves(int depth, int& alfa, int& beta, int x, int y, int moving_value, bool max_min, char moving_color, bool recordon, moves& m);
 	void royalMove(int depth, int& alpha, int& beta, int x, int y, bool max_min, char moving_color, bool recordon, moves& m);
-	void removeKing(vector<int>& v, int x, int y);
-	void addKing(int x, int y);
 	void checkDirection(int depth, int& alpha, int& beta, int x, int y, bool max_min, char moving_color, int dirX, int dirY, int iterations, bool recordon, moves& m);
-	void commonBeat(int depth, int& alpha, int& beta, bool max_min, int beatenX, int beatenY, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
+	
+	
+	bool isBeatPossible(int i, int j, int rj, int ri, char color);
 	bool nextCommonBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
+	void commonBeat(int depth, int& alpha, int& beta, bool max_min, int beatenX, int beatenY, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
+	
+	
 	bool possibleBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
 	void checkNextRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, int iteri, int iterj, bool recordon, moves& m);
 	bool possibleRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
 	bool isRoyalBeatPossible(int beatingX, int beatingY, int beatenX, int beatenY, int iteri, int iterj);
+	
+	
+	GameState move(int x, int y, int i, int j, char moving_color);
+	void removeKing(vector<int>& v, int x, int y);
+	void addKing(int x, int y);
 	GameState& beat(int x, int y);
 	
-	void executeMove(int x1, int y1, int x2, int y2);
+	
+	
+	
 public:
-
+	void insertPlayerData(char const*);
 	/* konstruktor tworzacy nowa plansze gry
 	* Parametry cc oraz pc przyporzadkowuja kolory pionkow
 	*/
 	GameState(char cc, char pc);
-
+	char const* getPlayerColor();
+	
 	/* konstruktor zmiany stanu, wprowadzamy ostatni stan oraz dane wykonanej zmiany
 	*/
 	//GameState(GameState&, int, int, int, int);
 
-	void playerMove(int, int, int, int);
-	
+	bool playerWin();
+	bool playerLoss();
 	//wykonanie ruchu przez komputer, wywoluje evaluate
-	std::string makeMove();
+	char const* makeMove();
 
 	//aktualizuje plansze po wykonaniu ruchu przez gracza
 	void updateState(std::string stateChange)
 	{
 		return;
 	}
+	
+	
 };
 
 
-/*
+
 
 #include <boost/python.hpp>
 using namespace boost;
@@ -121,28 +142,47 @@ initModule();
 // Create the Python type object for our extension class and define __init__ function.
 class_<GameState>("GameState", init<char, char>())
 .def("makeMove", &GameState::makeMove)  // Add a regular member function.
-.def("updateState", &GameState::updateState)  // Add invite() as a regular function to the module.
+.def("insertPlayerData", &GameState::insertPlayerData)
+.def("playerWin", &GameState::playerWin)
+.def("playerLoss", &GameState::playerLoss)
+.def("getPlayerColor", &GameState::getPlayerColor)
 ;
 class_<SimpleChecker>("SimpleChecker", init<char, bool>())
-.def("makeKing", &SimpleChecker::makeKing)
 .def("getColor", &SimpleChecker::getColor)
-.def("isKing", &SimpleChecker::isKing)
+.def("getKing", &SimpleChecker::getKing)
 ;
 }
 
-*/
 
 
-
-//void GameState::vecOp(int alpha, int temp, moves& m)
-//{
-//	if
-//}
+/*void GameState::reset()
+{
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = ((i + 1) % 2); j < 8; j += 2)
+		{
+			if (i < 3)
+			{
+				field[i][j].color = 'b';
+			}
+			else
+				if (i > 4)
+				{
+					field[i][j].color = 'w';
+				}
+				else
+					field[i][j].color = 0;
+			field[i][j].king = false;
+		}
+	}
+	whitePieces = 12;
+	blackPieces = 12;
+}
 
 
 GameState::GameState(char cc, char pc) : playerColor(pc), computerColor(cc), whitePieces(12), blackPieces(12)
 {
-	for (int i = 0; i < 8; i++)// <-- sprawdzenie pionków przeciwnika które nie są na krawędziach planszy (mogą byc bite)
+	for (int i = 0; i < 8; i++)
 	{
 		for (int j = ((i + 1) % 2); j < 8; j += 2)
 		{
@@ -170,6 +210,7 @@ int GameState::stateValue()
 
 void GameState::executeMove(int x1, int y1, int x2, int y2)
 {
+
 	field[x2][y2] = field[x1][y1];
 	int i = (x1 < x2) ? 1: -1;
 	int j = (y1 < y2) ? 1: -1;
@@ -184,9 +225,12 @@ std::string GameState::makeMove()
 {
 	char c;
 	string s;
-	stringstream ss;
+
 	moves m;
 	evaluate(10, m);
+	printAll();
+	//if(field[m[m.size()-1]][m[m.size()-2]].color == 0) cout << "STALO SIE";
+	printAll();
 	for(int i = m.size() - 1 ; i - 3 >= 0; i-=2)
 	{
 		executeMove(m[i-1], m[i], m[i-3], m[i-2]);
@@ -196,18 +240,27 @@ std::string GameState::makeMove()
 	for(int i = m.size() - 1 ; i >=0 ; i-=2)
 	{
 		c = 'A' + (char)m[i];
-		ss << c;
+		s.push_back(c);
+		//ss << c;
 		c = '8' - (char)m[i-1];
-		ss << c;
+		s.push_back(c);
+		s.push_back(' ');
 	}
-	ss >> s;
+
 	cout << s;
 	return s;
 }
 
+void GameState::insertPalyerData(string s)
+{
+	
+}
+
 void GameState:: playerMove(int x1, int y1, int x2, int y2)
 {
+	printAll();
 	executeMove(x1,y1,x2,y2);
+	printAll();
 }
 
 int GameState::evaluate(int depth, moves& m)
@@ -514,7 +567,7 @@ bool GameState::possibleBeats(int depth, int& alpha, int& beta, bool max_min, in
 	if (isBeatPossible(x, y, -1, 1, moving_color))
 	{
 		beating = true;
-		commonBeat(depth, alpha, beta, max_min, x, y, -1, 1, moving_color, op_color, recordon, m);
+		commonBeat(depth, alpha, beta, max_min, x, y, 1, -1, moving_color, op_color, recordon, m);
 		if (alpha >= beta) return true;
 	}
 	if (isBeatPossible(x, y, -1, -1, moving_color))
@@ -526,7 +579,7 @@ bool GameState::possibleBeats(int depth, int& alpha, int& beta, bool max_min, in
 	if (isBeatPossible(x, y, 1, -1, moving_color))
 	{
 		beating = true;
-		commonBeat(depth, alpha, beta, max_min, x, y, 1, -1, moving_color, op_color, recordon, m);
+		commonBeat(depth, alpha, beta, max_min, x, y, -1, 1, moving_color, op_color, recordon, m);
 		if (alpha >= beta) return true;
 	}
 	return beating;
@@ -729,7 +782,7 @@ bool GameState::isBeatPossible(int i, int j, int rj, int ri, char color)
 i - roznica w sumie pionow, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 1.04 ~1
 j - roznica w sumie damek, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 5.8 ~6
 */
-
+/*
 
 int GameState::beaten(bool beat[8][8])
 {
@@ -806,7 +859,7 @@ d = roznica w sumie wolnych pol na linii promocji -1.32 ~-1
 ..h - roznica w liczbie damek na bezpiecznych pozycjach 8.76  ~9
 i - roznica w sumie pionow, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 1.04 ~1
 j - roznica w sumie damek, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 5.8 ~6
-*/
+*/ /*
 int GameState::evalBeaten(bool beat[8][8])
 {
 	int sum = 0;
@@ -845,7 +898,7 @@ int GameState::evalBeaten(bool beat[8][8])
 ..h - roznica w liczbie damek na bezpiecznych pozycjach 8.76  ~9
 i - roznica w sumie pionow, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 1.04 ~1
 j - roznica w sumie damek, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 5.8 ~6
-*/
+*/ /*
 int GameState::evaluateBoard()
 {
 	bool beat[8][8];
@@ -892,4 +945,4 @@ int GameState::evaluateBoard()
 		}
 	return sum;
 
-}
+} */
