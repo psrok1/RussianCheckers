@@ -35,6 +35,7 @@
         constructor(board: Board) {
             var textureManager = TextureManager.getInstance();
             this.sprite = new PIXI.Sprite(textureManager.getTexture("pieceWhite"));
+            this.sprite.anchor = new PIXI.Point(0.5, 0.5);
             this.board = board;
             this.board.getSprite().addChild(this.sprite);
             this.sprite.click = function () {
@@ -98,8 +99,8 @@
          */
         private fieldToPosition(field: Model.Field): PIXI.Point {
             return new PIXI.Point(
-                field.x * 48 - 192,
-                field.y * 48 - 192);
+                field.x * 48 - 168,
+                field.y * 48 - 168);
         }
 
         /**

@@ -48,6 +48,7 @@
          * @param msg Wiadomość otrzymana od socketu
          */
         private onMessage(msg: MessageEvent) {
+            console.log("Received: " + msg.data);
             // Deserializacja JSON
             var response: ServerResponse = JSON.parse(msg.data);
             // Specyficzne funkcje obsługi komunikatu
