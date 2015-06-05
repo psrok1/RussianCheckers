@@ -105,6 +105,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	    s += str(m)
 	print s
 	self.game.insertPlayerData(s)
+	res = str()
+	res += '{"message": "move", "moves": '
+	res += self.game.makeMove()
+	res += '}'
+	self.write_message(res)
 	if self.game.playerWin():
 	    self.gameTime = time.time() - self.gameTime
 	    message = {"message": "end", "time": self.gameTime, "clientWin": True}
@@ -113,16 +118,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 		self.tops.addNewTopScorer(self.gameTime)
 		self.tops.update()
 	else:
-	    res = str()
-	    res += '{"message": "move", "moves": '
-	    res += self.game.makeMove()
-	    res += '}'
-	    self.write_message(res)
 	    if self.game.playerLoss():
 		self.gameTime = time.time() - self.gameTime
 		message = {"message": "end", "time": self.gameTime, "clientWin": False}
 		self.write_message(message)
 
+		    
 	
 if __name__ == "__main__":
     #game = Game.Game()
