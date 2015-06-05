@@ -1,20 +1,5 @@
 
 class TopScorers(object):
-<<<<<<< HEAD
-    """Klasa przechowujaca obecna liste graczy o najlepszych czasach wygranej, lista jest wczytywana z pliku"""
-    
-    def __init__(self):
-        print 'Konstruktor TopScores'
-	self.scorers = []
-	    
-        
-    """Wczytuje ostatnio zapisana wersje listy z pliku TopScorers"""
-    def read(self):
-	target = open('TopScorers')
-	self.scorers = []
-	self.scorers.append([float(x) for x in target.readline().split()])
-	target.close()        
-=======
 	"""Klasa przechowujaca obecna liste graczy o najlepszych czasach wygranej, lista jest wczytywana z pliku"""
 	
 	def __init__(self):
@@ -28,9 +13,6 @@ class TopScorers(object):
 		self.scorers = []
 		self.scorers.append([float(x) for x in target.readline().split()])
 		target.close()        
->>>>>>> 11dae7a3ba62cff1065d23c4667040281f1d4004
-
-
 	
 	"""Zapisuje obecny stan listy, nadpisujac plik"""
 	def update(self):

@@ -382,11 +382,7 @@ void GameState::printAll(int depth)
 		for (int k = 0; k < depth; k++)
 			cout << "  ";
 		for (int j = 0; j < 8; j++)
-<<<<<<< HEAD
 		{
-=======
-		{		
->>>>>>> 11dae7a3ba62cff1065d23c4667040281f1d4004
 			c = (field[i][j].king && field[i][j].color != 0) ? field[i][j].color - 'a' + 'A' : field[i][j].color;
 			if (j == 0) cout << i << '|';
 			cout << ((field[i][j].color == 0) ? ' ' : c) << ((j == 7) ? "|\n" : "| ");

@@ -1,11 +1,7 @@
-<<<<<<< HEAD
-
-=======
 """@package docstring
 Dokumentacja Serwera WebSocket
 
 """
->>>>>>> 11dae7a3ba62cff1065d23c4667040281f1d4004
 import tornado.ioloop
 import tornado.web 
 import tornado.websocket
@@ -16,11 +12,7 @@ import time
 
     
 class WSHandler(tornado.websocket.WebSocketHandler):
-<<<<<<< HEAD
-    """Klasa odpowiadjaca za komunikacje serwera z przegladarka.
-=======
     """Klasa odpowiadajaca za komunikacje serwera z przegladarka.
->>>>>>> 11dae7a3ba62cff1065d23c4667040281f1d4004
 	
     Tworzy serwer websocket ktorzy odbiera komunikaty od klienta oraz implementuje gracza komputerowego.
 	"""
@@ -101,12 +93,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
     def move(self,moves):
 	"""Wykonuje ruchy, stwierdza koniec gry.
-
-<<<<<<< HEAD
-	Na podstawie odtrzymanych od klienta danych wykonuje ruch, nastepnie sprawdza czy gra nie zostala zakonczona,
-=======
 	Na podstawie otrzymanych od klienta danych wykonuje ruch, nastepnie sprawdza czy gra nie zostala zakonczona,
->>>>>>> 11dae7a3ba62cff1065d23c4667040281f1d4004
 	Nastepnie wykonuje ruch komputera i ponownie sprawdza czy gra nie zostala zakonczona.
 	Komunikaty o wykonanych ruchach sa przekazywane w postaci JSON do klienta.
 	Jesli gra zostala zakonczona, sprawdza czas gry i wysyla wiadomosc klientowi.
