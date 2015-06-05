@@ -5,6 +5,9 @@
 #define __debugbreak __builtin_trap
 #endif
 
+#define MAX_INIT_BETA 10000000
+#define MIN_INIT_ALPHA -MAX_INIT_BETA
+
 #include "GameState.h"
 #include <deque>
 //#include "EvaluateBoard.cpp"
@@ -42,14 +45,16 @@ int main()
 }
 #endif
 
-
+// Aktualizuje liczbę pionków na podstawie planszy
 void GameState::update()
 {
 	int b = 0;
 	int w = 0;
-	for (int i = 0; i < 8; i++)
+	// CHANGE
+	for (int i = 0; i < lenght; i++)
 	{
-		for (int j = 0; j < 8; j++)
+		// CHANGE
+		for (int j = 0; j < lenght; j++)
 		{
 			if (field[i][j].color == 'b') b++;
 			if (field[i][j].color == 'w') w++;
@@ -59,6 +64,7 @@ void GameState::update()
 	blackPieces = b;
 }
 
+// Zwraca C-Stringa z kolorem gracza (do przemyślenia)
 char const* GameState::getPlayerColor()
 {
 	string s;
@@ -67,6 +73,7 @@ char const* GameState::getPlayerColor()
 	return s.c_str();
 }
 
+// Czy gracz wygrał? Używane w rozstrzygnięciu
 bool GameState::playerWin()
 {
 	if (playerColor == 'b')
@@ -79,6 +86,7 @@ bool GameState::playerWin()
 	}
 	return false;
 }
+// Czy gracz przegrał? Używane w rozstrzygnięciu
 bool GameState::playerLoss()
 {
 	if (playerColor == 'w')
@@ -92,8 +100,16 @@ bool GameState::playerLoss()
 	return false;
 }
 
+// Konstruktor GameState - tworzy nową planszę
 GameState::GameState(char cc, char pc) : playerColor(pc), computerColor(cc), whitePieces(12), blackPieces(12)
 {
+	for (int i = 0; i < 8; ++i)
+		for (int j = 0; j < 8; ++j)
+		{
+			field[i][j].color = 0;
+			field[i][j].king = false;
+		}
+
 	for (int i = 0; i < 8; i++)
 	{
 		for (int j = ((i + 1) % 2); j < 8; j += 2)
@@ -109,7 +125,6 @@ GameState::GameState(char cc, char pc) : playerColor(pc), computerColor(cc), whi
 				}
 				else
 					field[i][j].color = 0;
-			field[i][j].king = false;
 		}
 	}
 	//for (int i = 0; i < 8; ++i)
@@ -129,58 +144,166 @@ GameState::GameState(char cc, char pc) : playerColor(pc), computerColor(cc), whi
 	//field[6][5].king = true;
 }
 
+// ZAPYTAJ: Wylicza wartość planszy uwzględniając z czyjej perspektywy (tj. jakie gracz ma pionki)
 int GameState::stateValue()
 {
-
 	return (playerColor == 'w') ? evaluateBoard() : -(evaluateBoard());
 }
 
-void GameState::executeMove(int x1, int y1, int x2, int y2)
+void GameState::ASSERTION_MUST_BE_IN_RANGE(int x, int y)
 {
-	cout << endl;
-	cout << "EXECUTE MOVE: ";
-	cout << playerColor << x1 << y1 << " " << x2 << y2 << endl;
+	if (x < 0 || x > 7 || y < 0 || y > 7)
+		__debugbreak(); // PRZEKROCZENIE ZAKRESU!
+}
+void GameState::ASSERTION_MUST_BE_EMPTY(int x, int y)
+{
+	if (field[x][y].color != 0)
+		__debugbreak(); // NIE PUSTY - PROBLEM
+	else if (field[x][y].king == true)
+		__debugbreak(); // BRAK SPÓJNOŚCI! COLOR = 0, KING = TRUE
+}
+void GameState::ASSERTION_MUST_BE_NON_EMPTY(int x, int y)
+{
+	if (field[x][y].color == 0)
+		__debugbreak(); // PUSTY - PROBLEM
+}
+
+// Usuwa pionek z planszy
+GameState& GameState::beat(int x, int y)
+{
+	this->ASSERTION_MUST_BE_NON_EMPTY(x, y);
+
+	if (field[x][y].king)
+	{
+		if (field[x][y].color == 'w')
+		{
+			removeKing(wKings, x, y);
+		}
+		if (field[x][y].color == 'b')
+		{
+			removeKing(bKings, x, y);
+		}
+	}
+	if (field[x][y].color == 'b')
+		blackPieces--;
+	if (field[x][y].color == 'w')
+		whitePieces--;
+	field[x][y].color = 0;
+	// nie było usunięcia flagi King
+	field[x][y].king = false;
+	return *this;
+}
+
+// REALIZUJE RUCH (czym to się niby różni od move?)
+// Wykonuje bicie dodatkowo!!!!!
+void GameState::executeMove(int x1, int y1, int x2, int y2)
+{	
+	this->ASSERTION_MUST_BE_IN_RANGE(x1, y1);
+	this->ASSERTION_MUST_BE_IN_RANGE(x2, y2);
+	this->ASSERTION_MUST_BE_NON_EMPTY(x1, y1);
+	this->ASSERTION_MUST_BE_EMPTY(x2, y2);
+
+	if (x1 == x2 || y1 == y2)
+		__debugbreak(); // Przemieszczenie na samego siebie
+	
+	// Skopiuj pionek z pola x1,y1 na pole x2,y2
 	field[x2][y2] = field[x1][y1];
+	// Jeśli pole x1,y1 było damką
 	if (field[x1][y1].king)
 	{
+		// W odpowiednim wektorze...
 		std::vector<int> &kings = (field[x1][y1].color == 'b') ? bKings : wKings;
+		// Usuń damkę w źródłowym
 		removeKing(kings, x1, y1);
+		// Dodaj damkę w docelowym
 		addKing(x2, y2);
-		field[x1][y1].color = 0;
-		field[x1][y1].king = false;
 	}
-
+	// Wyzeruj pole skąd przyszło
+	field[x1][y1].color = 0;
+	field[x1][y1].king = false;
+	// Wyzeruj pola na drodze
 	int i = (x1 < x2) ? 1 : -1;
 	int j = (y1 < y2) ? 1 : -1;
 	for (; x1 != x2 && y1 != y2; x1 += i, y1 += j)
 	{
-		if (field[x1][y1].king == true)
-		{
-			removeKing((field[x1][y1].color == 'b') ? bKings : wKings, x1, y1);
-		}
-		field[x1][y1].color = 0;
-		field[x1][y1].king = false;
+		if (field[x1][y1].king == true && field[x1][y1].color == 0)
+			__debugbreak(); // NIESPÓJNOŚĆ PLANSZY!
+		// Jeśli coś tam stało: zbij
+		if (field[x1][y1].color != 0)
+			beat(x1, y1);
 	}
-	if (field[x2][y2].king == false && field[x2][y2].color == 'b' && x2 == 7) { field[x2][y2].king = true; addKing(x2, y2); cout << "pole:" << x2 << y2 << " stalo sie damka"; }
-	if (field[x2][y2].king == false && field[x2][y2].color == 'w' && x2 == 0) { field[x2][y2].king = true; addKing(x2, y2); cout << "pole:" << x2 << y2 << " stalo sie damka"; }
+	// ZMIANA: Aktualizacja liczby pionków
+	update();
+	// Jeśli pole nie było damką
+	if (field[x2][y2].king == false)
+	{
+		// A stoi na polu przemiany
+		if ((field[x2][y2].color == 'b' && x2 == 7) || (field[x2][y2].color == 'w' && x2 == 0))
+		{ 
+			field[x2][y2].king = true; 
+			addKing(x2, y2); 
+			//cout << "pole:" << x2 << y2 << " stalo sie damka"; 
+		}
+	}
+}
+// Ruch o wektor przemieszczenia na planszy
+// moving_color - niewykorzystywana zmienna!
+GameState GameState::move(int x, int y, int i, int j, char moving_color)
+{
+	GameState gs(*this);
+	// Z tym, że uwaga! Wykonuje dodatkowe bicie!
+	gs.executeMove(x, y, x + i, y + j);
+	return gs;
 }
 
+// TYLKO ALIAS: Na ruch gracza
+void GameState::playerMove(int x1, int y1, int x2, int y2)
+{
+	executeMove(x1, y1, x2, y2);
+}
+
+
+// Realizuje ruch ze strony serwera
 char const* GameState::makeMove()
 {
 	char c;
 	string s;
-	printAll(0);
+	printAll(0); // DEBUG
 	moves m;
-	evaluate(10, m);
-	//
-	//if(field[m[m.size()-1]][m[m.size()-2]].color == 0) cout << "STALO SIE";
-	//printAll();
-	for (int i = m.size() - 1; i - 3 >= 0; i -= 2)
+	int depth = 10;
+	do
 	{
-		executeMove(m[i - 1], m[i], m[i - 3], m[i - 2]);
+		m.clear();
+		evaluate(depth--, m); // Wylicz ruchy do wektora m z głębokością 10
+	} while (m.size() == 0 && depth > 0);
+	// FILTROWANIE DUPLIKATÓW: MEGA Z DUPY!!! POZDRAWIAM BIEDRZYŃSKIEGO! MAM NADZIEJĘ, ŻE TEGO PAN NIE CZYTA!
+	for (int i = m.size() - 1; i - 3 >= 0; i -= 2)					//
+	{
+		if (m[i - 1] == m[i - 3] && m[i] == m[i - 2])
+		{
+			std::cout << "WYKONANO FILTROWANIE MEGA Z DUPY! POZDRAWIAM\n";
+			m.erase(m.begin() + (i - 1), m.begin() + (i + 1));
+		}
 	}
-	cout << endl;
-	printAll(0);
+	// Zrealizuj te ruchy na planszy
+	//////////////////////////////////////////////////////////////////////////
+	if (m.size() > 0)													//
+	{																	//
+		for (int i = m.size() - 1; i - 3 >= 0; i -= 2)					//
+		{																//
+			executeMove(m[i - 1], m[i], m[i - 3], m[i - 2]);            //
+		}                                                               //  zmodyfikowany fragment 
+	}// jesli zaden ruch nie moze zostac wykonany komputer przegrywa    //	dodane sprawdzenie wielkosci wektora
+	else 																//	jesli pusty znaczy brak ruchow czyli przegrana
+	{
+		//
+		cout << "player win" << endl;                                   //
+		if (computerColor == 'b') blackPieces = 0;                       //
+		else if (computerColor == 'w') whitePieces = 0;                   //
+	}  																	//
+	//////////////////////////////////////////////////////////////////////////	         
+	printAll(0); // DEBUG
+	// Stwórz komunikat
 	s.push_back('[');
 	s.push_back(' ');
 	for (int i = m.size() - 1; i >= 0; i -= 2)
@@ -196,11 +319,14 @@ char const* GameState::makeMove()
 		s.push_back(' ');
 	}
 	s.push_back(']');
-	cout << s;
+	cout << s; // DEBUG
+	// Aktualizacja liczby pionków
 	update();
+	// Wyślij komunikat do części Python
 	return s.c_str();
 }
 
+// Wykonuje ruch gracza na podstawie danych tekstowych
 void GameState::insertPlayerData(char const* s)
 {
 	moves m;
@@ -216,31 +342,23 @@ void GameState::insertPlayerData(char const* s)
 	}
 	for (int i = 0; (i + 3) < m.size(); i += 2)
 		playerMove(m[i], m[i + 1], m[i + 2], m[i + 3]);
-
 	update();
-
 }
-
-void GameState::playerMove(int x1, int y1, int x2, int y2)
-{
-	//printAll();
-	executeMove(x1, y1, x2, y2);
-	//printAll();
-}
-
+// Wylicza ruch serwera do zrealizowania
+// PO CO TU JEST ZWRACANY INT
 int GameState::evaluate(int depth, moves& m)
 {
-
-	cout << alfabeta(depth, -1000000, 1000000, true, computerColor, true, m);
+	cout << alfabeta(depth, MIN_INIT_ALPHA, MAX_INIT_BETA, true, computerColor, true, m);
 	cout << endl;
 
 	for (int i = m.size() - 1; i >= 0; i -= 2)
 	{
 		cout << m[i - 1] << "-" << m[i] << endl;
 	}
+	// PO CO TU JEST 0
 	return 0;
 }
-// wypisuje cala plansze w razie potrzeby
+// wypisuje cala plansze w razie potrzeby - cele debug
 void GameState::printAll(int depth)
 {
 	char c;
@@ -263,6 +381,8 @@ void GameState::printAll(int depth)
 int DEBUG_MODE = 0;
 
 //sprawdza wszystkie możliwości ruchu i wykonuje po kolei 
+// Depth - na ile wgłąb?
+// alpha, beta, max_min
 int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char moving_color, bool recordon, moves& m)
 {
 	if (DEBUG_MODE)
@@ -270,11 +390,13 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 		std::cout << "------------------------------------------------\n";
 		printAll(depth);
 	}
+	// W LIŚCIU OBECNEGO DRZEWA GRY:
+	// gdy osiągnęliśmy maksymalną głębokość lub skończyły się pionki
 	if (blackPieces == 0 || whitePieces == 0 || depth == 0) // <-- jesteśmy w liściu obecnego drzewa gry
 	{
-		if (blackPieces == 0)
+		if (blackPieces == 0) // Jeśli skończyły się czarne
 		{
-			if (playerColor == 'b')
+			if (playerColor == 'b') // A my jesteśmy czarnymi
 			{
 				if (DEBUG_MODE)
 				{
@@ -282,7 +404,7 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 						cout << "  ";
 					std::cout << "leaf: -1000000\n";
 				}
-				return -1000000;
+				return -1000000;  // Ten ruch prowadzi do definitywnej przegranej
 			}
 			else
 			{
@@ -292,10 +414,10 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 						cout << "  ";
 					std::cout << "leaf: 1000000\n";
 				}
-				return 1000000;
+				return 1000000; // Ten ruch prowadzi do definitywnej wygranej
 			}
 		}
-		if (whitePieces == 0)
+		if (whitePieces == 0) // Jeśli skończyły się białe
 		{
 			if (playerColor == 'w')
 			{
@@ -305,7 +427,7 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 						cout << "  ";
 					std::cout << "leaf: -1000000\n";
 				}
-				return -1000000;
+				return -1000000; // Ten ruch prowadzi do definitywnej przegranej
 			}
 			else
 			{
@@ -315,26 +437,29 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 						cout << "  ";
 					std::cout << "leaf: 1000000\n";
 				}
-				return 1000000;
+				return 1000000; // Ten ruch prowadzi do definitywnej wygranej
 			}
 		}
-		if (depth == 0)
-			return stateValue();
+		if (depth == 0) // Jeśli nic się nie skończyło, ale osiągneliśmy maksymalną głębokość
+			return stateValue(); // Wylicz wartość planszy
 
 	}
+	// op_color: kolor przeciwnika
 	char op_color = (moving_color == 'b') ? 'w' : 'b';
 	int i, j;
-	vector<int> kings = (moving_color == 'b') ? bKings : wKings;
+	// Nasze damki (po co tu była kopia?) Do tego stałość!!
+	const vector<int>& kings = (moving_color == 'b') ? bKings : wKings;
 	bool beating = false;// <-- zmienna informująca o możliwości bicia
+	// Sprawdzenie pionków przeciwnika, które mogą być bite
 	for (i = 1; i < 7; i++)// <-- sprawdzenie pionków przeciwnika które nie są na krawędziach planszy (mogą byc bite)
 	{
 		for (j = 2 - ((i + 1) % 2); j < 7; j += 2)
 		{
 			if (field[i][j].color == op_color)
 			{
-				beating = (possibleBeats(depth, alpha, beta, max_min, i, j, moving_color, op_color, recordon, m)) ? true : beating;
+				// Czy pionek i,j może być bity przez zwykły?
+				beating = (possibleNRoyalBeats(depth, alpha, beta, max_min, i, j, moving_color, op_color, recordon, m)) ? true : beating;
 
-				//if(recordon) { if(temp < alpha) { m.push_back(i); m.push_back(j); m.push_back(x); m.push_back(y); temp = alpha;}}
 				if (alpha >= beta)
 				{
 					if (DEBUG_MODE) {
@@ -348,13 +473,14 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 		}
 	}
 	if (kings.size() % 2 == 1)
-		__debugbreak(); // ASSERT: KINGS PARITY!
-	if (!kings.empty())// <--jeśli mamy damki, sprawdzamy ich możliwość bicia
+		__debugbreak(); // ASSERT: Nieparzysta liczba parametrów w kings? WTF?
+	// Jeśli są jakieś damki, sprawdzamy czy mogą bić? (dobrze to rozumiem?)
+	if (!kings.empty())
 	{
 		for (unsigned int k = 0; k < kings.size(); k += 2)
 		{
 			beating = (possibleRoyalBeats(depth, alpha, beta, max_min, kings[k], kings[k + 1], moving_color, op_color, recordon, m)) ? true : beating;
-			//if(recordon) { if(temp < alpha) { m.push_back(i); m.push_back(j); m.push_back(x); m.push_back(y); temp = alpha;}}
+			
 			if (alpha >= beta)
 			{
 				if (DEBUG_MODE) {
@@ -459,7 +585,7 @@ bool GameState::possibleRoyalBeats(int depth, int& alpha, int& beta, bool max_mi
 					//if(i+iteri - x  < 0 || i+iteri > 7 || j+iterj < 0 || j+iterj > 7) cout << i << " " << j << " " <<  x << " " << y << " " <<  iteri << " " << iterj << endl;
 					temp = alpha;
 					//					cout << "possibleRoyalBeats: "<< x << " " << y << " " << i << " " << j << " " << iteri << " " << iterj << endl; //
-					move(x, y, i + iteri - x, j + iterj - y, moving_color).beat(i, j).checkNextRoyalBeats(depth, alpha, beta, max_min, i+iteri, j+iterj, moving_color, op_color, iteri, iterj, recordon, m);
+					move(x, y, i + iteri - x, j + iterj - y, moving_color)/*.beat(i, j)*/.checkNextRoyalBeats(depth, alpha, beta, max_min, i+iteri, j+iterj, moving_color, op_color, iteri, iterj, recordon, m);
 					if (recordon) { if (temp < alpha) { m.push_back(x); m.push_back(y); temp = alpha; } }
 					if (alpha >= beta)
 						return true;
@@ -478,25 +604,27 @@ void GameState::checkNextRoyalBeats(int depth, int& alpha, int& beta, bool max_m
 {
 
 	int temp;
-	int i = iteri;
-	int j = iterj;
-	int countx = (iteri > 0) ? 7 - x : x;
-	int county = (iterj > 0) ? 7 - y : y;
-	int count = min(countx, county);
+	//int i = iteri;
+	//int j = iterj;
+	int i = 0;
+	int j = 0;
 
 	bool anybeats = false;
 	// Od miejsca gdzie jest damka, która wykonała bicie
 	// Do miejsca gdzie może się dalej ruszyć
-	while (count >= 0 && x + i < 8 && x + i >= 0 && y + j < 8 && y + j >= 0 && field[x + i][y + j].color == 0)
+	while (x + i < 8 && x + i >= 0 && y + j < 8 && y + j >= 0)
 	{
 		temp = alpha;
 		// Sprawdzenie, czy z (x+i,y+j) da się wykonać damką bicie
-		anybeats = (move(x,y,i,j,moving_color).possibleRoyalBeats(depth, alpha, beta, max_min, x + i, y + j, moving_color, op_color, recordon, m)) ? true : anybeats;
+		anybeats = (
+			(i == 0 && j == 0 ? GameState(*this) : move(x, y, i, j, moving_color))
+			.possibleRoyalBeats(depth, alpha, beta, max_min, x + i, y + j, moving_color, op_color, recordon, m)) ? true : anybeats;
 		// Pisanie do wektora jeśli jesteś na głębokości 1
 		if (recordon) { if (temp < alpha) { m.push_back(x); m.push_back(y); temp = alpha; } }
-		count--;
 		i += iteri;
 		j += iterj;
+		if (field[x + i][y + j].color != 0)
+			break;
 	}
 	// cofanie inkrementacji poza zakresem
 	i -= iteri;
@@ -583,7 +711,7 @@ void GameState::commonBeat(int depth, int& alpha, int& beta, bool max_min, int b
 {
 	int temp;
 	GameState gs = move(beatenX + x, beatenY + y, -2 * x, -2 * y, moving_color);
-	gs.beat(beatenX, beatenY);
+//	gs.beat(beatenX, beatenY); JUŻ NIEPOTRZEBNE
 	temp = alpha;
 	if (gs.field[beatenX - x][beatenY - y].king == true)
 	{
@@ -624,7 +752,7 @@ void GameState::commonBeat(int depth, int& alpha, int& beta, bool max_min, int b
 				beta = min(beta, gs.alfabeta(depth - 1, alpha, beta, !max_min, op_color, false, m));
 			}
 		}
-		if (recordon) { if (temp < alpha) { m.push_back(beatenX - x); m.push_back(beatenY - y); m.push_back(beatenX + x); m.push_back(beatenY + y); temp = alpha; } }
+		if (recordon) { if (temp < alpha) { m.push_back(beatenX + x); m.push_back(beatenY + y); temp = alpha; } }
 	}
 }
 
@@ -664,29 +792,29 @@ bool GameState::nextCommonBeats(int depth, int& alpha, int& beta, bool max_min, 
 	return anybeats;
 }
 
-
-bool GameState::possibleBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m)
+// JUŻ POPRAWIONE, ALE JESZCZE ZERKNIJ!
+bool GameState::possibleNRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m)
 {
 	bool beating = false;
-	if (isBeatPossible(x, y, 1, 1, moving_color))
+	if (isNRoyalBeatPossible(x, y, 1, 1, moving_color))
 	{
 		beating = true;
 		commonBeat(depth, alpha, beta, max_min, x, y, 1, 1, moving_color, op_color, recordon, m);
 		if (alpha >= beta) return true;
 	}
-	if (isBeatPossible(x, y, -1, 1, moving_color))
+	if (isNRoyalBeatPossible(x, y, -1, 1, moving_color))
 	{
 		beating = true;
 		commonBeat(depth, alpha, beta, max_min, x, y, -1, 1, moving_color, op_color, recordon, m);
 		if (alpha >= beta) return true;
 	}
-	if (isBeatPossible(x, y, -1, -1, moving_color))
+	if (isNRoyalBeatPossible(x, y, -1, -1, moving_color))
 	{
 		beating = true;
 		commonBeat(depth, alpha, beta, max_min, x, y, -1, -1, moving_color, op_color, recordon, m);
 		if (alpha >= beta) return true;
 	}
-	if (isBeatPossible(x, y, 1, -1, moving_color))
+	if (isNRoyalBeatPossible(x, y, 1, -1, moving_color))
 	{
 		beating = true;
 		commonBeat(depth, alpha, beta, max_min, x, y, 1, -1, moving_color, op_color, recordon, m);
@@ -694,29 +822,6 @@ bool GameState::possibleBeats(int depth, int& alpha, int& beta, bool max_min, in
 	}
 	return beating;
 }
-
-GameState& GameState::beat(int x, int y)
-{
-	if (field[x][y].king)
-	{
-		if (field[x][y].color == 'w')
-		{
-			removeKing(wKings, x, y);
-		}
-		if (field[x][y].color == 'b')
-		{
-			removeKing(bKings, x, y);
-		}
-	}
-	if (field[x][y].color == 'b')
-		blackPieces--;
-	if (field[x][y].color == 'w')
-		whitePieces--;
-	field[x][y].color = 0;
-
-	return *this;
-}
-
 
 void GameState::removeKing(vector<int>& v, int x, int y)
 {
@@ -773,7 +878,7 @@ void GameState::checkDirection(int depth, int& alpha, int& beta, int x, int y, b
 		{
 			temp = alpha;
 			alpha = max(alpha, this->move(x, y, i, j, moving_color).alfabeta(depth - 1, alpha, beta, !max_min, moving_color, false, m));
-			if (recordon) { if (temp < alpha) { m.push_back(x + i); m.push_back(y + j); m.push_back(x); m.push_back(y); temp = alpha; } }
+			if (recordon) { if (temp < alpha) { m.clear(); m.push_back(x + i); m.push_back(y + j); m.push_back(x); m.push_back(y); temp = alpha; } }
 
 		}
 		else
@@ -843,48 +948,13 @@ void GameState::commonSideMoves(int depth, int& alpha, int& beta, int x, int y, 
 	}
 
 }
-GameState GameState::move(int x, int y, int i, int j, char moving_color)
-{
-	GameState gs(*this);
-	if (x + i < 0 || x + i > 7 || y + j < 0 || y + j > 7)
-	{
-		cout << "Move " << x << "," << y << "->" << x + i << "," << y + j << ":";
-		cout << "RANGE ASSERTION\n";
-		__debugbreak();
-	}
-	else
-	{
-		if (gs.field[x][y].king)
-		{
-			vector<int> & kings = (gs.field[x][y].color == 'b') ? gs.bKings : gs.wKings;
-			for (unsigned int k = 0; k < kings.size(); k += 2)
-			{
-				if (kings[k] == x && kings[k + 1] == y)
-				{
-					kings[k] = x + i;
-					kings[k + 1] = y + j;
-					break;
-				}
-			}
-		}
-		gs.field[x + i][y + j] = gs.field[x][y];
-		gs.field[x][y].king = false;
-		gs.field[x][y].color = 0;
-
-		if (!gs.field[x+i][y+j].king)
-			if ((moving_color == 'b' && x + i == 7) || (moving_color == 'w' && x + i == 0))
-			{
-				gs.field[x + i][y + j].king = true;
-				gs.addKing(x + i, y + j);
-			}
-	}
-	return gs;
-}
 
 //sprawdzenie czy podane pole może być bite
-bool GameState::isBeatPossible(int i, int j, int ri, int rj, char color)
+bool GameState::isNRoyalBeatPossible(int i, int j, int ri, int rj, char color)
 {
-	return (field[i + ri][j + rj].color == color && field[i - ri][j - rj].color == 0);
+	return (field[i + ri][j + rj].color == color && 
+		field[i+ri][j+rj].king == false && 
+		field[i - ri][j - rj].color == 0);
 }
 
 

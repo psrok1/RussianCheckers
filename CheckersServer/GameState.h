@@ -77,6 +77,9 @@ public:
 #endif
 	void playerMove(int, int, int, int);
 private:
+	void ASSERTION_MUST_BE_IN_RANGE(int x, int y);
+	void ASSERTION_MUST_BE_EMPTY(int x, int y);
+	void ASSERTION_MUST_BE_NON_EMPTY(int x, int y);
 	void update();
 	
 	int alfabeta(int depth, int alpha, int beta, bool max_min, char moving_color, bool recordon, moves& m);
@@ -89,12 +92,12 @@ private:
 	void checkDirection(int depth, int& alpha, int& beta, int x, int y, bool max_min, char moving_color, int dirX, int dirY, int iterations, bool recordon, moves& m);
 	
 	
-	bool isBeatPossible(int i, int j, int rj, int ri, char color);
+	bool isNRoyalBeatPossible(int i, int j, int rj, int ri, char color);
 	bool nextCommonBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
 	void commonBeat(int depth, int& alpha, int& beta, bool max_min, int beatenX, int beatenY, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
 	
 	
-	bool possibleBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
+	bool possibleNRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
 	void checkNextRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, int iteri, int iterj, bool recordon, moves& m);
 	bool possibleRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m);
 	bool isRoyalBeatPossible(int beatingX, int beatingY, int beatenX, int beatenY, int iteri, int iterj);
