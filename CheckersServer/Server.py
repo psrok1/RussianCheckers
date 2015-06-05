@@ -2,26 +2,24 @@
  Dokumentacja Serwera WebSocket
 
  """
-
 import tornado.ioloop
 import tornado.web 
 import tornado.websocket
 import json
 import GameState
-#import Checker
 import TopScorers
 import time
 
     
 class WSHandler(tornado.websocket.WebSocketHandler):
-    	"""Klasa dziedziczaca po WebSocketHandler, odpowiada ze komunikacje serwera z przegladarka
+    	"""Klasa odpowiadjąca za komunikacje serwera z przegladarka.
 	
 	Tworzy serwer websocket ktorzy odbiera komunikaty od klienta oraz implementuje gracza komputerowego.
 	"""
     
     def open(self):
 	""" Wykonuje sie po otwarciu polaczenia z serwerem
-	Wczytywane są wtedy wyniki z pliku tekstowego.
+	Wczytywane są wyniki z pliku tekstowego.
 	"""
 	self.tops = TopScorers.TopScorers()
 	self.tops.read()
@@ -90,7 +88,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	    s += '{"message": "move", "moves": '
 	    s += self.game.makeMove()
 	    s += '}'
-	    sgit aelf.write_message(s)
+	    self.write_message(s)
 
 
     def move(self,moves):
@@ -99,6 +97,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	Na podstawie odtrzymanych od klienta danych wykonuje ruch, następnie sprawdza czy gra nie została zakończona,
 	Następnie wykonuje ruch komputera i ponownie sprawdza czy gra nie została zakończona.
 	Komunikaty o wykonanych ruchach są przekazywane w postaci JSON do klienta.
+	Jesli gra zostala zakonczona, sprawdza czas gry i wysyla wiadomosc klientowi.
 	"""	
 	s = str()
 	for m in moves:
@@ -126,9 +125,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 		    
 	
 if __name__ == "__main__":
-    #game = Game.Game()
-    #checker = Checker.Checker('b', True, "1a")
-    #topscore = TopScorers.TopScorers()
     application = tornado.web.Application([
     (r'/', WSHandler)])
     application.listen(3000)

@@ -1,18 +1,13 @@
-"""Klasa przechowujaca obecna liste graczy o najlepszych czasach wygranej, lista jest wczytywana z pliku
 
-1.XXX czas:0.00
-2.YYY czas:0.01
-3.ZZZ czas:0.02
-    ...
-"""
 class TopScorers(object):
-
+	"""Klasa przechowujaca obecna liste graczy o najlepszych czasach wygranej, lista jest wczytywana z pliku"""
+    
     def __init__(self):
         print 'Konstruktor TopScores'
 	self.scorers = []
 	    
         
-    """Wczytuje ostatnio zapisana wersje listy"""
+    """Wczytuje ostatnio zapisana wersje listy z pliku TopScorers"""
     def read(self):
 	target = open('TopScorers')
 	self.scorers = []
@@ -31,8 +26,11 @@ class TopScorers(object):
     
     """Tworzy pakiet gotowy do wyslania na serwer"""
     def sendingList(self):
-	message = '{"message": "rank", "times": ['+ str(self.scorers[0][0]) + ', ' + str(self.scorers[0][1]) + ', ' + str(self.scorers[0][2]) + ', ' + str(self.scorers[0][3]) + ', ' + str(self.scorers[0][4]) + ']}'
-	
+	message = '{"message": "rank", "times": ['+ str(self.scorers[0][0]) + ', ' + \
+						str(self.scorers[0][1]) + ', ' + \
+						str(self.scorers[0][2]) + ', ' + \
+						str(self.scorers[0][3]) + ', ' + \
+						str(self.scorers[0][4]) + ']}'
         return message
     
     """Sprawdza czy podany czas jest lepszy niz najgorszy wynik na liscie"""
@@ -49,13 +47,5 @@ class TopScorers(object):
 	            j = j - 1
 	        self.scorers[0][i] = time
 		return
-"""
-if __name__ == "__main__":
-    top = TopScorers()
-    top.read()
-    if top.isGoodEnough(150):
-	top.addNewTopScorer(150);
-    
-    print str(top.sendingList())
-    top.update()""" 	
+
 
