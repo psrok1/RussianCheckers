@@ -45,15 +45,13 @@ int main()
 }
 #endif
 
-// Aktualizuje liczbę pionków na podstawie planszy
+/** Zlicza pionki na planszy i aktualizuje ich stan*/
 void GameState::update()
 {
 	int b = 0;
 	int w = 0;
-	// CHANGE
 	for (int i = 0; i < lenght; i++)
 	{
-		// CHANGE
 		for (int j = 0; j < lenght; j++)
 		{
 			if (field[i][j].color == 'b') b++;
@@ -63,17 +61,14 @@ void GameState::update()
 	whitePieces = w;
 	blackPieces = b;
 }
-
-// Zwraca C-Stringa z kolorem gracza (do przemyślenia)
+/** Zwraca kolor pionków gracza. */
 char const* GameState::getPlayerColor()
 {
 	string s;
 	s.push_back(playerColor);
-	//s.push_back(' ');
 	return s.c_str();
 }
-
-// Czy gracz wygrał? Używane w rozstrzygnięciu
+/** Informuje czy gracz wygrał czy nie. */
 bool GameState::playerWin()
 {
 	if (playerColor == 'b')
@@ -86,7 +81,7 @@ bool GameState::playerWin()
 	}
 	return false;
 }
-// Czy gracz przegrał? Używane w rozstrzygnięciu
+/** Informuje czy gracz przegrał czy nie. */
 bool GameState::playerLoss()
 {
 	if (playerColor == 'w')
@@ -99,8 +94,12 @@ bool GameState::playerLoss()
 	}
 	return false;
 }
-
-// Konstruktor GameState - tworzy nową planszę
+/** Konstruktor klasy GameState.
+ * 
+ * Ustala kolor pionków gracza i komputera, rozmieszcza pionki na planszy. 
+ * cc - kolor pionków komputera
+ * pc - kolor pionków gracza
+ */
 GameState::GameState(char cc, char pc) : playerColor(pc), computerColor(cc), whitePieces(12), blackPieces(12)
 {
 	for (int i = 0; i < 8; ++i)
@@ -127,34 +126,19 @@ GameState::GameState(char cc, char pc) : playerColor(pc), computerColor(cc), whi
 					field[i][j].color = 0;
 		}
 	}
-	//for (int i = 0; i < 8; ++i)
-	//	for (int j = 0; j < 8; ++j)
-	//	{
-	//		field[i][j].color = 0;
-	//		field[i][j].king = false;
-	//	}
-	//bKings.push_back(6);
-	//bKings.push_back(5);
-	//wKings.push_back(4);
-	//wKings.push_back(1);
-	//field[4][1].color = 'w';
-	//field[4][1].king = true;
-	//field[3][0].color = 'w';
-	//field[6][5].color = 'b';
-	//field[6][5].king = true;
 }
+/** Funkcja sprawdzająca wartość stanu planszy. */
 
-// ZAPYTAJ: Wylicza wartość planszy uwzględniając z czyjej perspektywy (tj. jakie gracz ma pionki)
 int GameState::stateValue()
 {
 	return (playerColor == 'w') ? evaluateBoard() : -(evaluateBoard());
 }
-
 void GameState::ASSERTION_MUST_BE_IN_RANGE(int x, int y)
 {
 	if (x < 0 || x > 7 || y < 0 || y > 7)
 		__debugbreak(); // PRZEKROCZENIE ZAKRESU!
 }
+
 void GameState::ASSERTION_MUST_BE_EMPTY(int x, int y)
 {
 	if (field[x][y].color != 0)
@@ -162,13 +146,15 @@ void GameState::ASSERTION_MUST_BE_EMPTY(int x, int y)
 	else if (field[x][y].king == true)
 		__debugbreak(); // BRAK SPÓJNOŚCI! COLOR = 0, KING = TRUE
 }
+
 void GameState::ASSERTION_MUST_BE_NON_EMPTY(int x, int y)
 {
 	if (field[x][y].color == 0)
 		__debugbreak(); // PUSTY - PROBLEM
 }
-
-// Usuwa pionek z planszy
+/** Bicie pionka.
+ * Usuwa pionek ze wskazanego pola oraz zmniejsza liczbę pionków.
+ */
 GameState& GameState::beat(int x, int y)
 {
 	this->ASSERTION_MUST_BE_NON_EMPTY(x, y);
@@ -193,8 +179,13 @@ GameState& GameState::beat(int x, int y)
 	field[x][y].king = false;
 	return *this;
 }
-
-// REALIZUJE RUCH (czym to się niby różni od move?)
+/** Realizuje ruch.
+ * 
+ * Przesuwa pionek z położenia początkowego na końcowe, bijąc napotakne po drodze pionki.
+ * x1,y1 - położenie poczatkowe
+ * x2, y2 - położenie końcowe
+ */
+// REALIZUJE RUCH (czym to się niby różni od move?) << właściwie to niczym się nie różniło ale powstało 4 dni później i w sumie z początku nie było aż tak podobne do move (chyba)
 // Wykonuje bicie dodatkowo!!!!!
 void GameState::executeMove(int x1, int y1, int x2, int y2)
 {	
@@ -246,8 +237,13 @@ void GameState::executeMove(int x1, int y1, int x2, int y2)
 		}
 	}
 }
+/** Ruch o wektor przemieszczenia na planszy
+ * 
+ * x,y - współrzędne położenia początkowego
+ * i,j - wektor przemieszczenia
+ */
 // Ruch o wektor przemieszczenia na planszy
-// moving_color - niewykorzystywana zmienna!
+// moving_color - niewykorzystywana zmienna! << TO WYJEBAĆ JĄ ????
 GameState GameState::move(int x, int y, int i, int j, char moving_color)
 {
 	GameState gs(*this);
@@ -256,19 +252,33 @@ GameState GameState::move(int x, int y, int i, int j, char moving_color)
 	return gs;
 }
 
-// TYLKO ALIAS: Na ruch gracza
+/**
+ * 
+ * 
+ * 
+ *
+ */
+// TYLKO ALIAS: Na ruch gracza << WYJEBAĆ ??
 void GameState::playerMove(int x1, int y1, int x2, int y2)
 {
 	executeMove(x1, y1, x2, y2);
 }
 
+/** Sprawdza czy gracz moze wykonac jakis ruch.
+ * Zwraca prawdę jeśli gracz może wykonać jakikolwiek ruch, fałsz w przeciwnym przypadku.
+ */
 bool GameState::playerBlocked()
 {
 	moves m;
 	alfabeta(1, MIN_INIT_ALPHA, MAX_INIT_BETA, true, playerColor, true, m);
 	return m.empty();
 }
-
+/** Realizuje ruch ze strony serwera oraz czy żaden z graczy nie będzie zablokowany.
+ *
+ * Szuka najlepszej możliwości ruchu dla gracza komputerowego, jeśli jej nie znajdzie sygnalizuje blokade.
+ * Wykonuje znaleziony ruch i sprawdza klient nie jest zablokowany.
+ * Zwraca wykonany ruch w postaci ciągu znaków.
+ */
 // Realizuje ruch ze strony serwera
 char const* GameState::makeMove()
 {
@@ -283,7 +293,7 @@ char const* GameState::makeMove()
 		evaluate(depth--, m); // Wylicz ruchy do wektora m z głębokością 10
 	} while (m.size() == 0 && depth > 0);
 	// Filtrowanie duplikatów
-	for (int i = m.size() - 1; i - 3 >= 0; i -= 2)					//
+	for (int i = m.size() - 1; i - 3 >= 0; i -= 2)					
 	{
 		if (m[i - 1] == m[i - 3] && m[i] == m[i - 2])
 		{
@@ -291,12 +301,11 @@ char const* GameState::makeMove()
 		}
 	}
 	// Zrealizuj te ruchy na planszy
-	//////////////////////////////////////////////////////////////////////////
-	if (m.size() > 0)													//
-	{																	//
-		for (int i = m.size() - 1; i - 3 >= 0; i -= 2)					//
-		{																//
-			executeMove(m[i - 1], m[i], m[i - 3], m[i - 2]);            //
+	if (m.size() > 0)													
+	{																	
+		for (int i = m.size() - 1; i - 3 >= 0; i -= 2)					
+		{																
+			executeMove(m[i - 1], m[i], m[i - 3], m[i - 2]);            
 		}
 		// Aktualizacja liczby pionków
 		update();
@@ -310,11 +319,10 @@ char const* GameState::makeMove()
 	else
 	{
 		//
-		cout << "player win" << endl;                                   //
-		if (computerColor == 'b') blackPieces = 0;                       //
-		else if (computerColor == 'w') whitePieces = 0;                   //
-	}  																	//
-	//////////////////////////////////////////////////////////////////////////
+		cout << "player win" << endl;                                   
+		if (computerColor == 'b') blackPieces = 0;                      
+		else if (computerColor == 'w') whitePieces = 0;                 
+	}  																	
 	printAll(0); // DEBUG
 	// Stwórz komunikat
 	s.push_back('[');
@@ -337,7 +345,8 @@ char const* GameState::makeMove()
 	return s.c_str();
 }
 
-// Wykonuje ruch gracza na podstawie danych tekstowych
+/** Parsuje dane o ruchu przychodzace od klienta
+ * oraz wykonujace wskazane ruchy */
 void GameState::insertPlayerData(char const* s)
 {
 	moves m;
@@ -355,8 +364,13 @@ void GameState::insertPlayerData(char const* s)
 		playerMove(m[i], m[i + 1], m[i + 2], m[i + 3]);
 	update();
 }
+/** Wyszukuje ruch dla gracza komputerowego i zapisuje go w zadanym wektorze.
+ * 
+ * depth - głębokość przeszukania drzewa gry
+ * m - wektor ruchów
+ */
 // Wylicza ruch serwera do zrealizowania
-// PO CO TU JEST ZWRACANY INT
+// PO CO TU JEST ZWRACANY INT << BO MYŚLAŁEM ŻE TO BĘDZIE ZWRACAĆ WARTOŚĆ WYLICZONEJ ALFY ALE OKAZAŁO SIĘ ŻE NIE MA TAKIE POTRZEBY
 int GameState::evaluate(int depth, moves& m)
 {
 	cout << alfabeta(depth, MIN_INIT_ALPHA, MAX_INIT_BETA, true, computerColor, true, m);
@@ -366,10 +380,11 @@ int GameState::evaluate(int depth, moves& m)
 	{
 		cout << m[i - 1] << "-" << m[i] << endl;
 	}
-	// PO CO TU JEST 0
+	// PO CO TU JEST 0 << BO MYŚLAŁEM ŻE TO BĘDZIE ZWRACAĆ WARTOŚĆ WYLICZONEJ ALFY ALE OKAZAŁO SIĘ ŻE NIE MA TAKIE POTRZEBY
 	return 0;
 }
-// wypisuje cala plansze w razie potrzeby - cele debug
+
+/// wypisuje cala plansze w razie potrzeby - cele debug
 void GameState::printAll(int depth)
 {
 	char c;
@@ -381,7 +396,7 @@ void GameState::printAll(int depth)
 		for (int i = 0; i < depth; i++)
 			cout << "  ";
 		for (int j = 0; j < 8; j++)
-		{
+		
 			c = (field[i][j].king && field[i][j].color != 0) ? field[i][j].color - 'a' + 'A' : field[i][j].color;
 			if (j == 0) cout << i << '|';
 			cout << ((field[i][j].color == 0) ? ' ' : c) << ((j == 7) ? "|\n" : "| ");
@@ -391,9 +406,16 @@ void GameState::printAll(int depth)
 
 int DEBUG_MODE = 0;
 
-//sprawdza wszystkie możliwości ruchu i wykonuje po kolei 
-// Depth - na ile wgłąb?
-// alpha, beta, max_min
+/** Wyszukuje ruch dla gracza komputerowego.
+ * 
+ * Przeszukuje drzewo gry na daną głębokość i na podstawie otrzymanych wartości wybiera ruch do wykonania przez komputer.
+ * depth - glebokosc przeszukiwania
+ * alpha, beta - współczynniki algorytmu minmax + alfabeta
+ * max_min - czy szukamy maksymalnej czy minimalnej wartosci
+ * moving_color - jaki kolor pioka wykonuje ruch
+ * recordon - czy pozycje pionka będą zapisywane do wektora
+ * m - wektor ruchów
+ */
 int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char moving_color, bool recordon, moves& m)
 {
 	if (DEBUG_MODE)
@@ -484,8 +506,8 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 		}
 	}
 	if (kings.size() % 2 == 1)
-		__debugbreak(); // ASSERT: Nieparzysta liczba parametrów w kings? WTF?
-	// Jeśli są jakieś damki, sprawdzamy czy mogą bić? (dobrze to rozumiem?)
+		__debugbreak(); // ASSERT: Nieparzysta liczba parametrów w kings
+	// Jeśli są jakieś damki, sprawdzamy czy mogą bić
 	if (!kings.empty())
 	{
 		for (unsigned int k = 0; k < kings.size(); k += 2)
@@ -517,9 +539,7 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 			{
 				if (field[i][j].color == moving_color && field[i][j].king != true)
 				{
-
 					commonCenterMoves(depth, alpha, beta, i, j, moving_value, max_min, moving_color, recordon, m);
-					//if(recordon) { if(temp < alpha) { m.push_back(i); m.push_back(j); m.push_back(x); m.push_back(y); temp = alpha;}}
 					if (alpha >= beta)
 					{
 						if (DEBUG_MODE)
@@ -537,9 +557,7 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 		{
 			if (field[i][0].color == moving_color && field[i][0].king != true)
 			{
-
 				commonSideMoves(depth, alpha, beta, i, 0, moving_value, max_min, moving_color, recordon, m);
-				//if(recordon) { if(temp < alpha) { m.push_back(i); m.push_back(j); m.push_back(x); m.push_back(y); temp = alpha;}}
 				if (alpha >= beta)
 				{
 					return (max_min) ? alpha : beta;
@@ -547,9 +565,7 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 			}
 			if (field[i][7].color == moving_color && field[i][7].king != true)
 			{
-
 				commonSideMoves(depth, alpha, beta, i, 7, moving_value, max_min, moving_color, recordon, m);
-				//if(recordon) { if(temp < alpha) { m.push_back(i); m.push_back(j); m.push_back(x); m.push_back(y); temp = alpha;}}
 				if (alpha >= beta)
 				{
 					if (DEBUG_MODE)
@@ -567,7 +583,6 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 
 			royalMove(depth, alpha, beta, kings[i], kings[i + 1], max_min, moving_color, recordon, m);
 		}
-
 	}
 	if (DEBUG_MODE)
 	{
@@ -577,25 +592,28 @@ int GameState::alfabeta(int depth, int alpha, int beta, bool max_min, char movin
 	}
 	return (max_min) ? alpha : beta;
 }
-
+/** Dla zadanej damki szuka dostępnych bić.
+ * 
+ * Szuka pionkow przeciwnika i sprawdza które z nich mogą być bite przez damkę.
+ * Zwraca prawdę jeśli istnieją jakieś bicia, fałsz w przeciwnym wypadku.
+ * x,y - pozycja damki
+ */
 bool GameState::possibleRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m)
 {
 	int temp;
-	bool anybeats = false;
+	bool anybeats = false; 
 	for (int i = 1; i < 7; i++)
 	{
 		for (int j = 2 - ((i + 1) % 2); j < 7; j += 2)
 		{
-			if (field[i][j].color == op_color && ((i - j) == (x - y) || (i + j) == (x + y))) // <------------- pionek w zaięgu damki
+			if (field[i][j].color == op_color && ((i - j) == (x - y) || (i + j) == (x + y))) // pionek w zaięgu damki
 			{
 				int iteri = (x < i) ? 1 : -1;
 				int iterj = (y < j) ? 1 : -1;
 				if (isRoyalBeatPossible(x, y, i, j, iteri, iterj))
 				{
-					anybeats = true;//<---------------------------------------------------------------------------------------------------------------------------------------------------------
-					//if(i+iteri - x  < 0 || i+iteri > 7 || j+iterj < 0 || j+iterj > 7) cout << i << " " << j << " " <<  x << " " << y << " " <<  iteri << " " << iterj << endl;
+					anybeats = true;
 					temp = alpha;
-					//					cout << "possibleRoyalBeats: "<< x << " " << y << " " << i << " " << j << " " << iteri << " " << iterj << endl; //
 					move(x, y, i + iteri - x, j + iterj - y, moving_color)/*.beat(i, j)*/.checkNextRoyalBeats(depth, alpha, beta, max_min, i+iteri, j+iterj, moving_color, op_color, iteri, iterj, recordon, m);
 					if (recordon) { if (temp < alpha) { m.push_back(x); m.push_back(y); temp = alpha; } }
 					if (alpha >= beta)
@@ -606,17 +624,15 @@ bool GameState::possibleRoyalBeats(int depth, int& alpha, int& beta, bool max_mi
 	}
 	return anybeats;
 }
+/** Wyszukuje dalszych bić dla damki lub 
+ * x,y - położenie po biciu
+ * iteri, iterj - wektor kierunku poszukiwań 
+ */
 
-// To jest funkcja, która wyszukuje potencjalne bicia dla damki
-// x,y - położenie po biciu
-// iteri, iterj - wektor kierunku poszukiwań 
-// Wywoływane z poziomu possibleRoyalBeats
 void GameState::checkNextRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, int iteri, int iterj, bool recordon, moves& m)
 {
 
 	int temp;
-	//int i = iteri;
-	//int j = iterj;
 	int i = 0;
 	int j = 0;
 
@@ -647,8 +663,8 @@ void GameState::checkNextRoyalBeats(int depth, int& alpha, int& beta, bool max_m
 		// Jeśli nie może się ruszyć w tym kierunku
 		if (i == 0 || j == 0)
 		{
-			// Próbujemy coś wycisnąć z tego położenia gdzie jest
-			if (max_min)//<-------------------------------------------------------------------------------------------------------------------
+			// Sprawdzamy dalsze ruchy dla obecnej pozycji damki
+			if (max_min)
 			{
 				if (!(x + i < 8 && x + i >= 0 && y + j < 8 && y + j >= 0))
 					__debugbreak(); // problem
@@ -673,10 +689,10 @@ void GameState::checkNextRoyalBeats(int depth, int& alpha, int& beta, bool max_m
 					return;
 			}
 		}
-		// Próbujemy wycisnąć z każdej pozycji gdzie mogłaby być
+		// Sprawdzamy ruchy dla dalszych pozycji
 		while (i != 0 && j != 0)
 		{
-			if (max_min)//<-------------------------------------------------------------------------------------------------------------------
+			if (max_min)
 			{
 				if (!(x + i < 8 && x + i >= 0 && y + j < 8 && y + j >= 0))
 					__debugbreak(); // problem
@@ -706,23 +722,36 @@ void GameState::checkNextRoyalBeats(int depth, int& alpha, int& beta, bool max_m
 	}
 }
 
+/** 
+ * Sprawdza czy damka o takich wspolrzednych moze wykonac bicie
+ * beatingX, beatingY - wspolrzedne damki bijacej
+ * beatenX, beatenY - wspolrzedne pionka potencjalnie bitego
+ * iteri, iterj - wektor kierunku
+ */
 bool GameState::isRoyalBeatPossible(int beatingX, int beatingY, int beatenX, int beatenY, int iteri, int iterj)
 {
 	int i = iteri;
 	int j = iterj;
 	for (; beatingX + i != beatenX && beatingY != beatenY; i += iteri, j += iterj)
 	{
+		// sprawdzamy czy pomiedzy damka a pionkiem bitym nie znajduja sie inne pionki
 		if (field[beatingX + i][beatingY + j].color != 0)
 			return false;
+	// jesli nie ma pomiedzy nimi pionkow zwracamy wartosc mowiaca
+	// czy pole za pionkiem bitym jest wolne
 	}
 	return (field[beatenX + iteri][beatenY + iterj].color == 0);
 }
 
+/**Funkcja wykonujaca bicie zyklym pionkiem
+ * beatenX, beatenY - wspolrzedne pionka bitego
+ * x, y - kierunek z ktorego pionek jest bity
+ */
 void GameState::commonBeat(int depth, int& alpha, int& beta, bool max_min, int beatenX, int beatenY, int x, int y, char moving_color, char op_color, bool recordon, moves& m)
 {
 	int temp;
+	// ruch na podane pole i bicie pionka po drodze
 	GameState gs = move(beatenX + x, beatenY + y, -2 * x, -2 * y, moving_color);
-//	gs.beat(beatenX, beatenY); JUŻ NIEPOTRZEBNE
 	temp = alpha;
 	if (gs.field[beatenX - x][beatenY - y].king == true)
 	{
@@ -732,6 +761,7 @@ void GameState::commonBeat(int depth, int& alpha, int& beta, bool max_min, int b
 			if (max_min)
 			{
 				temp = alpha;
+				// jesli damka nie moze wykonac zadnego bicia przechodzimy do nastepnego ruchu przeciwnika
 				alpha = max(alpha, gs.alfabeta(depth - 1, alpha, beta, !max_min, op_color, false, m));
 				if (recordon) { if (temp < alpha) { m.clear(); m.push_back(beatenX - x); m.push_back(beatenY - y); m.push_back(beatenX + x); m.push_back(beatenY + y); temp = alpha; } }
 			}
@@ -741,13 +771,12 @@ void GameState::commonBeat(int depth, int& alpha, int& beta, bool max_min, int b
 			}
 		}
 		else { if (recordon) { if (temp < alpha) { m.push_back(beatenX + x); m.push_back(beatenY + y); temp = alpha; } } }
-
 		if (alpha >= beta)
 			return;
-	}
+	}// jesli nie, sprawdzamy dalsze mozliwosci ruchu bicia dla pionka
 	else
 	{
-
+		//jesli nie ma dlaszych mozliwosci bicia przechodzimy do nastepnego ruchu przeciwnika
 		if (!(gs.nextCommonBeats(depth, alpha, beta, max_min, beatenX - x, beatenY - y, moving_color, op_color, recordon, m)))
 		{
 			if (max_min)
@@ -755,8 +784,6 @@ void GameState::commonBeat(int depth, int& alpha, int& beta, bool max_min, int b
 				temp = alpha;
 				alpha = max(alpha, gs.alfabeta(depth - 1, alpha, beta, !max_min, op_color, false, m));
 				if (recordon) { if (temp < alpha) { m.clear(); m.push_back(beatenX - x); m.push_back(beatenY - y); m.push_back(beatenX + x); m.push_back(beatenY + y); temp = alpha; } }
-
-
 			}
 			else
 			{
@@ -766,7 +793,7 @@ void GameState::commonBeat(int depth, int& alpha, int& beta, bool max_min, int b
 		if (recordon) { if (temp < alpha) { m.push_back(beatenX + x); m.push_back(beatenY + y); temp = alpha; } }
 	}
 }
-
+/** Sprawdza wszystkie bicia możliwe do wykonania przez poinek o podanych współrzędnych (perspektywa pionka bijącego) */
 bool GameState::nextCommonBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m)
 {
 
@@ -802,8 +829,7 @@ bool GameState::nextCommonBeats(int depth, int& alpha, int& beta, bool max_min, 
 	}
 	return anybeats;
 }
-
-// JUŻ POPRAWIONE, ALE JESZCZE ZERKNIJ!
+/** Sprawdza wszyskie możliwości bicia pionka o podanych współrzędnych (perspektywa pionka bitego) */
 bool GameState::possibleNRoyalBeats(int depth, int& alpha, int& beta, bool max_min, int x, int y, char moving_color, char op_color, bool recordon, moves& m)
 {
 	bool beating = false;
@@ -833,7 +859,7 @@ bool GameState::possibleNRoyalBeats(int depth, int& alpha, int& beta, bool max_m
 	}
 	return beating;
 }
-
+/** Usunięcie damki z wektora damek */
 void GameState::removeKing(vector<int>& v, int x, int y)
 {
 	if (FIRST_INSTANCE == this)
@@ -849,7 +875,7 @@ void GameState::removeKing(vector<int>& v, int x, int y)
 		}
 	}
 }
-
+/** Dodanie wspołrzędnych damki do wektora damek */
 void GameState::addKing(int x, int y)
 {
 	if (FIRST_INSTANCE == this)
@@ -866,7 +892,7 @@ void GameState::addKing(int x, int y)
 	}
 }
 
-
+/**  Szuka mozliwosci ruchu dla damki */
 void GameState::royalMove(int depth, int& alpha, int& beta, int x, int y, bool max_min, char moving_color, bool recordon, moves& m)
 {
 	checkDirection(depth, alpha, beta, x, y, max_min, moving_color, -1, -1, ((x < y) ? x : y), recordon, m);
@@ -877,7 +903,11 @@ void GameState::royalMove(int depth, int& alpha, int& beta, int x, int y, bool m
 	if (alpha >= beta)return;
 	checkDirection(depth, alpha, beta, x, y, max_min, moving_color, 1, -1, (7 - x < y) ? 7 - x : y, recordon, m);
 }
-
+/** Szuka mozliwosci ruchu dla podanej damki.
+ * x,y - wspolrzedne pola na ktorym znajduje sie damka 
+ * dirX, dirY - kierunek poruszania sie damki
+ * iterations - ilosc pol do konca planszy w danym kierunku poruszania sie
+ */
 void GameState::checkDirection(int depth, int& alpha, int& beta, int x, int y, bool max_min, char moving_color, int dirX, int dirY, int iterations, bool recordon, moves& m)
 {
 	int temp;
@@ -903,7 +933,7 @@ void GameState::checkDirection(int depth, int& alpha, int& beta, int x, int y, b
 		iterations--;
 	}
 }
-
+/** Sprawdza czy dla pionka w centralnej części planszy może zostać wykonany ruch */
 
 void GameState::commonCenterMoves(int depth, int& alpha, int& beta, int x, int y, int moving_value, bool max_min, char moving_color, bool recordon, moves& m)
 {
@@ -938,7 +968,7 @@ void GameState::commonCenterMoves(int depth, int& alpha, int& beta, int x, int y
 		}
 	}
 }
-
+/**  Sprawdza czy dla pionka przy krawędzi części planszy może zostać wykonany ruch */
 void GameState::commonSideMoves(int depth, int& alpha, int& beta, int x, int y, int moving_value, bool max_min, char moving_color, bool recordon, moves& m)
 {
 	int temp;
@@ -959,8 +989,13 @@ void GameState::commonSideMoves(int depth, int& alpha, int& beta, int x, int y, 
 	}
 
 }
+/** Sprawdzenie czy podane pole może być bite
+ * 
+ * i,j - współrzędne pola
+ * ri, rj - wektor kierunku z którego pole ma być bite
+ */
 
-//sprawdzenie czy podane pole może być bite
+///
 bool GameState::isNRoyalBeatPossible(int i, int j, int ri, int rj, char color)
 {
 	return (field[i + ri][j + rj].color == color && 
@@ -982,7 +1017,12 @@ i - roznica w sumie pionow, ktore nie moga wykonac ruchu ze wzgledu na zablokowa
 j - roznica w sumie damek, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 5.8 ~6
 */
 
-
+/**
+ * 
+ * 
+ * 
+ *
+ */
 int GameState::beaten(bool beat[8][8])
 {
 	int sum = 0;
@@ -1045,7 +1085,12 @@ int GameState::beaten(bool beat[8][8])
 	return sum;
 }
 
-
+/**
+ * 
+ * 
+ * 
+ *
+ */
 
 /*
 A - roznica w liczbie pionkow 1.00 ~1
