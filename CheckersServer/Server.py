@@ -19,6 +19,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
 	json_data = message;
 	useful_data = json.loads(json_data)
+	print useful_data
 	self.interpret(useful_data)
 	  
         #self.write_message(message)
@@ -89,9 +90,9 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	    self.gameTime = time.clock() - self.gameTime
 	    message = {"message": "end", "time": self.gameTime, "clientWin": "true"}
 	    self.write_message(message)
-	    if tops.isGoodEnough():
-		tops.addNewTopScorer()
-		tops.update()
+	    if self.tops.isGoodEnough(self.gameTime):
+		self.tops.addNewTopScorer(self.gameTime)
+		self.tops.update()
 	else:
 	    res = str()
 	    res += '{"message": "move", "moves": '
