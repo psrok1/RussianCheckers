@@ -262,6 +262,12 @@ void GameState::playerMove(int x1, int y1, int x2, int y2)
 	executeMove(x1, y1, x2, y2);
 }
 
+bool GameState::playerBlocked()
+{
+	moves m;
+	alfabeta(1, MIN_INIT_ALPHA, MAX_INIT_BETA, true, playerColor, true, m);
+	return m.empty();
+}
 
 // Realizuje ruch ze strony serwera
 char const* GameState::makeMove()
@@ -276,12 +282,11 @@ char const* GameState::makeMove()
 		m.clear();
 		evaluate(depth--, m); // Wylicz ruchy do wektora m z głębokością 10
 	} while (m.size() == 0 && depth > 0);
-	// FILTROWANIE DUPLIKATÓW: MEGA Z DUPY!!! POZDRAWIAM BIEDRZYŃSKIEGO! MAM NADZIEJĘ, ŻE TEGO PAN NIE CZYTA!
+	// Filtrowanie duplikatów
 	for (int i = m.size() - 1; i - 3 >= 0; i -= 2)					//
 	{
 		if (m[i - 1] == m[i - 3] && m[i] == m[i - 2])
 		{
-			std::cout << "WYKONANO FILTROWANIE MEGA Z DUPY! POZDRAWIAM\n";
 			m.erase(m.begin() + (i - 1), m.begin() + (i + 1));
 		}
 	}
@@ -292,16 +297,24 @@ char const* GameState::makeMove()
 		for (int i = m.size() - 1; i - 3 >= 0; i -= 2)					//
 		{																//
 			executeMove(m[i - 1], m[i], m[i - 3], m[i - 2]);            //
-		}                                                               //  zmodyfikowany fragment 
-	}// jesli zaden ruch nie moze zostac wykonany komputer przegrywa    //	dodane sprawdzenie wielkosci wektora
-	else 																//	jesli pusty znaczy brak ruchow czyli przegrana
+		}
+		// Aktualizacja liczby pionków
+		update();
+		// Sprawdzamy czy gracz może się ruszyć
+		if (playerBlocked())
+		{
+			// Nie? Przegrał
+			(playerColor == 'b' ? blackPieces : whitePieces) = 0;
+		}
+	}
+	else
 	{
 		//
 		cout << "player win" << endl;                                   //
 		if (computerColor == 'b') blackPieces = 0;                       //
 		else if (computerColor == 'w') whitePieces = 0;                   //
 	}  																	//
-	//////////////////////////////////////////////////////////////////////////	         
+	//////////////////////////////////////////////////////////////////////////
 	printAll(0); // DEBUG
 	// Stwórz komunikat
 	s.push_back('[');
@@ -320,8 +333,6 @@ char const* GameState::makeMove()
 	}
 	s.push_back(']');
 	cout << s; // DEBUG
-	// Aktualizacja liczby pionków
-	update();
 	// Wyślij komunikat do części Python
 	return s.c_str();
 }
