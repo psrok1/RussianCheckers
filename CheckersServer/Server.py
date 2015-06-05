@@ -1,3 +1,8 @@
+ """@package docstring
+ Dokumentacja Serwera WebSocket
+
+ """
+
 import tornado.ioloop
 import tornado.web 
 import tornado.websocket
@@ -7,42 +12,46 @@ import GameState
 import TopScorers
 import time
 
-"""Klasa dziedziczaca po WebSocketHandler, odpowiada ze komunikacje serwera z przegladarka"""    
-class WSHandler(tornado.websocket.WebSocketHandler):
     
-    ''' wykonuje sie po otwarciu polaczenia z serwerem'''
+class WSHandler(tornado.websocket.WebSocketHandler):
+    	"""Klasa dziedziczaca po WebSocketHandler, odpowiada ze komunikacje serwera z przegladarka
+	
+	Tworzy serwer websocket ktorzy odbiera komunikaty od klienta oraz implementuje gracza komputerowego.
+	"""
+    
     def open(self):
+	""" Wykonuje sie po otwarciu polaczenia z serwerem
+	Wczytywane są wtedy wyniki z pliku tekstowego.
+	"""
 	self.tops = TopScorers.TopScorers()
 	self.tops.read()
         print 'new connection'
     
-    ''' odbiera wiadomosc tekstowa wyslana do serwera'''  
+    
     def on_message(self, message):
+	""" Odbiera wiadomosc tekstowa wyslana do serwera
+
+	Funkcja odbiera wiadomosc z serwera, nastepnie konwetruje ja z JSON do dict i interpretuje.
+	"""  
 	json_data = message;
 	useful_data = json.loads(json_data)
 	print useful_data
 	self.interpret(useful_data)
-	  
-        #self.write_message(message)
-    
-    ''' wykonuje sie po zamknieciu polaczenia z serwerem'''
+
     def on_close(self):
+	""" wykonuje sie po zamknieciu polaczenia z serwerem"""
         print 'connection closed'
     
-    ''' Pozwala na przyjmowanie zapytan z roznych zrodel'''
+    
     def check_origin(self, origin): 
+	""" Pozwala na przyjmowanie zapytan z roznych zrodel"""
         return True    
     
-    ''' Reaguje na zapytanie o serwer'''
-    #def get(self):
-    #   pass
-        #self.render("zrodlostrony.html") #.js tez powinno pociagnac
-
-
-
-
-
     def interpret(self, dict):
+	"""Funkcja interpretujaca wiadomosc od klienta.
+	
+	Sprawdza tresc nadeslanej przez klienta wiadomosci 
+	"""
 	if dict['message'] == 'rank':
 	    self.tops.read()
 	    self.write_message(self.tops.sendingList())	
@@ -54,11 +63,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	    	    self.move(dict['moves'])
 		else:
 	  	    if dict['message'] == 'ready':			
-			self.ready()
-    
-    
+			self.ready()   
 
     def hello(self,pieces):
+	"""Funkcja rozpoczynajaca gre.
+
+	Przyjmuje powitanie oraz preferowany przez gracza kolor pionkow, odpowiada wysylajac wiadomosc o wybranym kolorze.	
+	"""
 	if pieces == 'auto' or pieces == 'white':
 	    self.game = GameState.GameState('b', 'w')
 	    message = '{"message": "hello", "pieces": "white"}'
@@ -68,8 +79,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	    message = '{"message": "hello", "pieces": "black"}'
 	    self.write_message(message)
 
-
     def ready(self):
+	"""Odbiera od klienta wiadomosc o gotowosci.
+	
+	Odbiera od klienta wiadomosc o gotowosci, rozpoczyna liczenie czasu gry i zaleznie od wybranego koloru czeka na gracza lub wykonuje ruch.
+	"""
 	self.gameTime = time.time()
 	if self.game.getPlayerColor() == 'b':
 	    s = str()
@@ -79,9 +93,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	    self.write_message(s)
 
 
-
-
     def move(self,moves):
+	"""Wykonuje ruchy, stwierdza koniec gry.
+
+	Na podstawie odtrzymanych od klienta danych wykonuje ruch, następnie sprawdza czy gra nie została zakończona,
+	Następnie wykonuje ruch komputera i ponownie sprawdza czy gra nie została zakończona.
+	Komunikaty o wykonanych ruchach są przekazywane w postaci JSON do klienta.
+	"""	
 	s = str()
 	for m in moves:
 	    s += str(m)
@@ -105,19 +123,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 		message = {"message": "end", "time": self.gameTime, "clientWin": False}
 		self.write_message(message)
 
-
-
-	
-	#message = {"message": "move", "moves": ["A2", "B3", "C4"]}
-	#self.write_message(message)
-	#message1 = {"message": "end", "time": 68, "clientWin": "true"}
-	#self.write_message(message1)
-
-
-
-
-
-	
 	
 if __name__ == "__main__":
     #game = Game.Game()
