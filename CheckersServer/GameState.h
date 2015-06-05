@@ -85,7 +85,6 @@ private:
 	int alfabeta(int depth, int alpha, int beta, bool max_min, char moving_color, bool recordon, moves& m);
 	int evaluate(int depth, moves& m);
 	
-	
 	void commonCenterMoves(int depth, int& alfa, int& beta, int x, int y, int moving_value, bool max_min, char moving_color, bool recordon, moves& m);
 	void commonSideMoves(int depth, int& alfa, int& beta, int x, int y, int moving_value, bool max_min, char moving_color, bool recordon, moves& m);
 	void royalMove(int depth, int& alpha, int& beta, int x, int y, bool max_min, char moving_color, bool recordon, moves& m);
@@ -108,7 +107,7 @@ private:
 	void addKing(int x, int y);
 	GameState& beat(int x, int y);
 	
-	
+	bool playerBlocked();
 	
 	
 public:
