@@ -28,6 +28,8 @@ module View {
         public pause(): boolean {
             if (!this.paused) {
                 this.paused = true;
+                // PIXI: Update interactionManager fix
+                (<any>this.stage).interactionManager.dirty = true;
                 return true;
             } else
                 return false;
