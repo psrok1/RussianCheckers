@@ -90,7 +90,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 	    s += '{"message": "move", "moves": '
 	    s += self.game.makeMove()
 	    s += '}'
-	    self.write_message(s)
+	    sgit aelf.write_message(s)
 
 
     def move(self,moves):
