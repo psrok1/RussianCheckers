@@ -175,7 +175,6 @@ GameState& GameState::beat(int x, int y)
 	if (field[x][y].color == 'w')
 		whitePieces--;
 	field[x][y].color = 0;
-	// nie było usunięcia flagi King
 	field[x][y].king = false;
 	return *this;
 }
@@ -185,17 +184,12 @@ GameState& GameState::beat(int x, int y)
  * x1,y1 - położenie poczatkowe
  * x2, y2 - położenie końcowe
  */
-// REALIZUJE RUCH (czym to się niby różni od move?) << właściwie to niczym się nie różniło ale powstało 4 dni później i w sumie z początku nie było aż tak podobne do move (chyba)
-// Wykonuje bicie dodatkowo!!!!!
 void GameState::executeMove(int x1, int y1, int x2, int y2)
 {	
 	this->ASSERTION_MUST_BE_IN_RANGE(x1, y1);
 	this->ASSERTION_MUST_BE_IN_RANGE(x2, y2);
 	this->ASSERTION_MUST_BE_NON_EMPTY(x1, y1);
 	this->ASSERTION_MUST_BE_EMPTY(x2, y2);
-
-	if (x1 == x2 || y1 == y2)
-		__debugbreak(); // Przemieszczenie na samego siebie
 	
 	// Skopiuj pionek z pola x1,y1 na pole x2,y2
 	field[x2][y2] = field[x1][y1];
@@ -242,8 +236,6 @@ void GameState::executeMove(int x1, int y1, int x2, int y2)
  * x,y - współrzędne położenia początkowego
  * i,j - wektor przemieszczenia
  */
-// Ruch o wektor przemieszczenia na planszy
-// moving_color - niewykorzystywana zmienna! << TO WYJEBAĆ JĄ ????
 GameState GameState::move(int x, int y, int i, int j, char moving_color)
 {
 	GameState gs(*this);
@@ -252,13 +244,7 @@ GameState GameState::move(int x, int y, int i, int j, char moving_color)
 	return gs;
 }
 
-/**
- * 
- * 
- * 
- *
- */
-// TYLKO ALIAS: Na ruch gracza << WYJEBAĆ ??
+/** Alias executeMove */
 void GameState::playerMove(int x1, int y1, int x2, int y2)
 {
 	executeMove(x1, y1, x2, y2);
@@ -393,10 +379,10 @@ void GameState::printAll(int depth)
 	cout << "  0  1  2  3  4  5  6  7" << endl;
 	for (int i = 0; i < 8; i++)
 	{
-		for (int i = 0; i < depth; i++)
+		for (int k = 0; k < depth; k++)
 			cout << "  ";
 		for (int j = 0; j < 8; j++)
-		
+		{
 			c = (field[i][j].king && field[i][j].color != 0) ? field[i][j].color - 'a' + 'A' : field[i][j].color;
 			if (j == 0) cout << i << '|';
 			cout << ((field[i][j].color == 0) ? ' ' : c) << ((j == 7) ? "|\n" : "| ");
@@ -1004,24 +990,10 @@ bool GameState::isNRoyalBeatPossible(int i, int j, int ri, int rj, char color)
 }
 
 
-/*
-..A - roznica w liczbie pionkow 1.00 ~1
-..b - roznica w liczbie damek 8.68 ~9
-..c - roznica w sumie odleglosci pionow od linii promocji -1.48 ~-1
-..d - roznica w sumie wolnych pol na linii promocji -1.32 ~-1
-..e - roznica w sumie pionow do zbicia liczonych szacunkowo 3.65 ~4
-..f - roznica w sumie damek do zbicia liczonych szacunkowo 3.91 ~4
-..g - roznica w sumie pionow na bezpiecznych pozycjach  0.93 ~1
-..h - roznica w liczbie damek na bezpiecznych pozycjach 8.76  ~9
-i - roznica w sumie pionow, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 1.04 ~1
-j - roznica w sumie damek, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 5.8 ~6
-*/
-
-/**
+/**Oznaczanie na tablicy beat wszystkich pól, na których stoi figura którą można zbić.
  * 
+ * Zwraca składnik wartości planszy wynikający z obecności figur bez ruchu.
  * 
- * 
- *
  */
 int GameState::beaten(bool beat[8][8])
 {
@@ -1085,25 +1057,11 @@ int GameState::beaten(bool beat[8][8])
 	return sum;
 }
 
-/**
- * 
- * 
- * 
+/** Zwraca składnik wartości planszy wynikający z obecności 
+ * bezpiecznych i zagrożonych biciem figur.
  *
+ * beat - tablica z oznaczonymi polami na których znajduje się bita figura 
  */
-
-/*
-A - roznica w liczbie pionkow 1.00 ~1
-b - roznica w liczbie damek 8.68 ~9
-c - roznica w sumie odleglosci pionow od linii promocji -1.48 ~-1
-d = roznica w sumie wolnych pol na linii promocji -1.32 ~-1
-..e - roznica w sumie pionow do zbicia liczonych szacunkowo 3.65 ~4
-..f - roznica w sumie damek do zbicia liczonych szacunkowo 3.91 ~4
-..g - roznica w sumie pionow na bezpiecznych pozycjach  0.93 ~1
-..h - roznica w liczbie damek na bezpiecznych pozycjach 8.76  ~9
-i - roznica w sumie pionow, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 1.04 ~1
-j - roznica w sumie damek, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 5.8 ~6
-*/
 int GameState::evalBeaten(bool beat[8][8])
 {
 	int sum = 0;
@@ -1131,18 +1089,12 @@ int GameState::evalBeaten(bool beat[8][8])
 	return sum;
 }
 
-/*
-..A - roznica w liczbie pionkow 1.00 ~1
-..b - roznica w liczbie damek 8.68 ~9
-..c - roznica w sumie odleglosci pionow od linii promocji -1.48 ~-1
-..d = roznica w sumie wolnych pol na linii promocji -1.32 ~-1
-..e - roznica w sumie pionow do zbicia liczonych szacunkowo 3.65 ~4
-..f - roznica w sumie damek do zbicia liczonych szacunkowo 3.91 ~4
-..g - roznica w sumie pionow na bezpiecznych pozycjach  0.93 ~1
-..h - roznica w liczbie damek na bezpiecznych pozycjach 8.76  ~9
-i - roznica w sumie pionow, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 1.04 ~1
-j - roznica w sumie damek, ktore nie moga wykonac ruchu ze wzgledu na zablokowane pola 5.8 ~6
-*/
+
+/**  Realizacja funkcji oceniającej 
+ * 
+ *  Zwracana wartość planszy - dodatnia jesli jest korzystniejsza dla białych pionków, 
+ *  ujemna jeśli dla czarnych, 0 jeśli remis
+ */
 int GameState::evaluateBoard()
 {
 	bool beat[8][8];

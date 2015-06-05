@@ -1,6 +1,6 @@
 
 class TopScorers(object):
-	"""Klasa przechowujaca obecna liste graczy o najlepszych czasach wygranej, lista jest wczytywana z pliku"""
+    """Klasa przechowujaca obecna liste graczy o najlepszych czasach wygranej, lista jest wczytywana z pliku"""
     
     def __init__(self):
         print 'Konstruktor TopScores'
