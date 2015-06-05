@@ -97,6 +97,7 @@
             // Aktualizuj dane dotyczące czasu
             this.model.syncClockTicks(time);
             // Aktualizuj widok
+            this.view.updateTimer(this.model.getFormattedClockTicks());
             this.view.setEndGameMessage(win, this.model.getFormattedClockTicks());
             this.view.setInteractive(false);
             // Dodaj przejście

@@ -57,7 +57,7 @@
          * Synchronizuje stan lokalnego zegara z czasem otrzymanym od serwera
          */
         public syncClockTicks(serverTime: number) {
-            this.gameTime = serverTime;
+            this.gameTime = Math.floor(serverTime);
         }
 
         /**

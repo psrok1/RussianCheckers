@@ -9,6 +9,8 @@
         private autoButton: ColorSelectionButton;
         /** Przycisk wyboru czarnych pionków */
         private blackButton: ColorSelectionButton;
+        /** Przycisk rozpoczęcia gry */
+        private startButton: PIXI.Text;
         /** Czasy rankingu */
         private bestTimes: PIXI.Text[] = [];
 
@@ -93,26 +95,26 @@
             }.bind(this));
             this.getStage().addChild(this.blackButton);
 
-            var startButton = new PIXI.Text("Rozpocznij grę", {
+            this.startButton = new PIXI.Text("Rozpocznij grę", {
                 font: "28px monospace",
                 fill: "#efe4b0",
                 align: "center"
             });
-            startButton.anchor = new PIXI.Point(0.5, 0.5);
-            startButton.position = new PIXI.Point(400, 540);
-            startButton.interactive = true;
-            startButton.click = function () {
+            this.startButton.anchor = new PIXI.Point(0.5, 0.5);
+            this.startButton.position = new PIXI.Point(400, 540);
+            this.startButton.interactive = true;
+            this.startButton.click = function () {
                 if (this.onStartGameHandler) {
                     this.onStartGameHandler(this.selectedColor);
                 }
             }.bind(this);
-            startButton.mouseover = function () {
+            this.startButton.mouseover = function () {
                 document.body.style.cursor = "pointer";
             }.bind(this);
-            startButton.mouseout = function () {
+            this.startButton.mouseout = function () {
                 document.body.style.cursor = "default";
             }.bind(this);
-            this.getStage().addChild(startButton);
+            this.getStage().addChild(this.startButton);
         }
 
         /**
@@ -146,23 +148,36 @@
         }
 
         /**
+         * Metoda zmieniająca interaktywność widoku
+         * @param interactive Czy widok powinien reagować na zdarzenia myszy?
+         */
+        public setInteractive(interactive: boolean) {
+            this.stage.interactive = interactive;
+            this.startButton.interactive = interactive;
+        }
+
+        /**
          * Metoda wywoływana przez menedżer widoków przy wstrzymaniu tego widoku
          * (gdy widok jest przełączany na inny)
          */
         public pause(): boolean {
             if (!super.pause())
                 return false;
+            this.setInteractive(false);
             document.body.style.cursor = "default";
             return true;
         }
 
-        //public update() { }
-        //public resume() {
-        //    if (!super.resume())
-        //        return false;
-        //    // ...
-        //    return true;
-        //}
+        /**
+         * Metoda wywoływana przez menedżer widoków przy wznawianiu tego widoku
+         * (gdy przełączamy na ten widok)
+         */
+        public resume() {
+            if (!super.resume())
+                return false;
+            this.setInteractive(true);
+            return true;
+        }
     }
 
     /**
