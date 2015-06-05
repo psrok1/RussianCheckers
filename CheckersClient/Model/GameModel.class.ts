@@ -43,7 +43,7 @@
          * Następne tyknięcie zegara gry
          */
         public nextClockTick() {
-            if (this.localTurn) ++this.gameTime;
+            ++this.gameTime;
         }
 
         /**

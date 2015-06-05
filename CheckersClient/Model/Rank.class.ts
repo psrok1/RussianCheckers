@@ -12,10 +12,10 @@
          */
         public updateTimes(times: number[])
         {
+            this.times = times.slice();
             // Zaokrąglenie wartości
             for (var i = 0; i < times.length; i++)
                 this.times[i] = Math.floor(this.times[i]);
-            this.times = times.slice();
         }
 
         /**
