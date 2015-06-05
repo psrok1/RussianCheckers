@@ -13,6 +13,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     ''' wykonuje sie po otwarciu polaczenia z serwerem'''
     def open(self):
 	self.tops = TopScorers.TopScorers()
+	self.tops.read()
         print 'new connection'
     
     ''' odbiera wiadomosc tekstowa wyslana do serwera'''  
