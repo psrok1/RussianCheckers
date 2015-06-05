@@ -174,11 +174,22 @@
         }
 
         /**
+         * Losuje kolor dla gracza, gdy wszystko mu jedno
+         * @return Losowo wybrany kolor pionka
+         */
+        private getRandomColor(): Model.PieceColor {
+            return (Math.random()>0.5 ? Model.PieceColor.White : Model.PieceColor.Black);
+        }
+
+        /**
          * Wyzwalacz stworzenia nowej gry przez kontroler
          * @param desiredColor Żądany przez gracza kolor
          */
         public startNewGame(desiredColor: Model.PieceColor) {
             View.MessageView.showMessage("Łączenie z serwerem...");
+            // Jeśli nie podano koloru - wylosuj jakiś
+            if (desiredColor == null)
+                desiredColor = this.getRandomColor();
             // Po nawiązaniu połączenia
             this.webClient.onConnect(function () {
                 // Przywitaj się...
